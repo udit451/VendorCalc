@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Living_Expense_Used_of_HPI_or_Actual__c</fullName>
+    <deprecated>false</deprecated>
+    <externalId>false</externalId>
+    <label>Living Expense Used (&gt; of HPI or Actual)</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackTrending>false</trackTrending>
+    <type>Currency</type>
+</CustomField>

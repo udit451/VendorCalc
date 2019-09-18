@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <defaultLandingTab>standard-home</defaultLandingTab>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
+    <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
+    <tabs>standard-Chatter</tabs>
+    <tabs>MortgageCalc__Financial_Calculator__c</tabs>
+    <tabs>quoteCal__Quote_Calculator__c</tabs>
+    <tabs>Loan_Repayment__c</tabs>
+    <tabs>quoteCal__Amortization_Schedule__c</tabs>
+    <tabs>Fee_Expense__c</tabs>
+</CustomApplication>

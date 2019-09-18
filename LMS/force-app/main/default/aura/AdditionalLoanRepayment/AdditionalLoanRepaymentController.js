@@ -1,0 +1,17 @@
+({
+    doInit:function(c,e,h){
+        h.doInit_helper(c,e,h);
+    },
+    calculate:function(c,e,h){
+        h.calculate_helper(c,e,h);
+    },
+    closeATPopup:function(c,e,h){
+        c.set('v.AmortizationTable',false);
+    },
+    reset:function(c,e,h){
+       c.set('v.calculator',undefined);
+    },
+    saveCalvalue:function(c,e,h){
+        h.saveCalvalue_helper(c,e,h);
+    }
+})

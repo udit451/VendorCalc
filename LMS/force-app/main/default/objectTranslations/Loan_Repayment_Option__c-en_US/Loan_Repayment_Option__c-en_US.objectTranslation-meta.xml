@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Loan Repayment Option</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Loan Repayment Option</value>
+    </caseValues>
+    <layouts>
+        <layout>Mortgage Calculator</layout>
+        <sections>
+            <label><!-- Calculation Details --></label>
+            <section>Calculation Details</section>
+        </sections>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>Servicability Calculator</layout>
+        <sections>
+            <label><!-- Custom Links --></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label><!-- Fields --></label>
+            <section>Fields</section>
+        </sections>
+        <sections>
+            <label><!-- Income --></label>
+            <section>Income</section>
+        </sections>
+        <sections>
+            <label><!-- Less Existing Commitments --></label>
+            <section>Less Existing Commitments</section>
+        </sections>
+        <sections>
+            <label><!-- Less Living Allowance --></label>
+            <section>Less Living Allowance</section>
+        </sections>
+        <sections>
+            <label><!-- New Loan Commitments --></label>
+            <section>New Loan Commitments</section>
+        </sections>
+        <sections>
+            <label><!-- Serviceability Stress Test --></label>
+            <section>Serviceability Stress Test</section>
+        </sections>
+    </layouts>
+    <recordTypes>
+        <label><!-- Mortgage Calculator --></label>
+        <name>Mortgage_Calculator</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- Quote Calculator --></label>
+        <name>Quote_Calculator</name>
+    </recordTypes>
+    <recordTypes>
+        <label><!-- Servicability Calculator --></label>
+        <name>Servicability_Calculator</name>
+    </recordTypes>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

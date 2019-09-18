@@ -1,0 +1,40 @@
+<!--**********************************************************************************************************
+Name       Date (dd/mm/yyyy)   Change Request Record       Short Description
+Krapy Tuli   26/03/2019          Toast Component        To show the success/error toast on the UI.
+**************************************************************************************************************--> 
+<aura:component access="global" description="This component displays error and success toast" >
+
+    <!--This component is used where ever we need to show the toast-->
+
+    <aura:attribute name="variant" type="String" default="success" access="global" description="gives the variant to the toast" />
+    <aura:attribute name="message" type="String" default="Record Saved Successfully!" access="global" description="gives the message to the toast" />
+    <aura:attribute name="duration" type="Integer" default="5000" access="global" description="gives the time duration to the toast" />
+    <aura:attribute name="showToast" type="Boolean" default="false" access="global" description="to show or hide the toast" />
+    <aura:handler name="change" action="{!c.changeToastHandler}" value="{!v.showToast}" />
+    <!--<aura:handler name="init" action="{!c.doinit}" value="{!this}" />-->
+
+    <!--Toast Start-->
+    <aura:if isTrue="{!v.showToast}" >
+        <div aura:id="toast" class="slds-backdrop slds-backdrop--open" style="z-index:100000000;">
+            <div class="slds-p-top_small" style="height: 4rem;">
+                <div class="slds-notify_container slds-is-relative">
+                    <div class="{!v.variant == 'success' ? 'slds-notify slds-notify_toast slds-theme_success':'slds-notify slds-notify_toast slds-theme_error'}" role="alert">
+                        <span class="slds-assistive-text">{!v.variant}</span>
+                        <span class="slds-icon_container slds-icon-utility-success slds-m-right_small slds-no-flex slds-align-top" >
+                            <lightning:icon alternativeText="toast" iconName="{!v.variant == 'success'? 'utility:success' : 'utility:error'}" size="small" class="fillclr"/>
+                        </span>
+                        <div class="slds-notify__content">
+                            <h2 class="slds-text-heading_small ">{!v.message}</h2>
+                        </div>
+                        <button class="slds-button slds-button_icon slds-notify__close slds-button_icon-inverse" title="Close" onclick="{!c.closeToast}" >
+                            <lightning:icon alternativeText="Close" iconName="utility:close" size="small" class="fillclr"/>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aura:if>
+    <!--Toast End-->
+
+</aura:component>

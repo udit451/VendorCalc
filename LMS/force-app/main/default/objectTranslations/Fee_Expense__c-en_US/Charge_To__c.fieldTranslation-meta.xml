@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Charge To --></label>
+    <name>Charge_To__c</name>
+    <picklistValues>
+        <masterLabel>Broker(Self)</masterLabel>
+        <translation><!-- Broker(Self) --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Customer</masterLabel>
+        <translation><!-- Customer --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Lender</masterLabel>
+        <translation><!-- Lender --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Referrer</masterLabel>
+        <translation><!-- Referrer --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

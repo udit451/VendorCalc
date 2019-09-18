@@ -1,0 +1,103 @@
+<aura:component description="CustomLookup" controller="CustomLookup" access="global">
+    <aura:attribute type="String" name="label" required="true" default="Lookup"/>
+    <aura:attribute type="String" name="lookupValue"/>
+    <aura:attribute type="String" name="lookupObjectAPI" default=""/>
+    <aura:attribute type="String" name="lookupId"/>
+    <aura:attribute type="String" name="lookupLabel"/>
+    <aura:attribute type="Object[]" name="lookupList"/>
+    <aura:attribute type="Boolean" name="selectedLookup" default="false"/>
+    <aura:attribute type="Boolean" name="NoResults" default="false"/>
+    <aura:attribute type="Object" name="accountRecord" default="{}" access="global"/>
+    <aura:attribute name="opportunityObject" type="Opportunity" default="{'sobjectType' : 'Opportunity'}"/>
+    <aura:attribute name="createNewAccount" type="Boolean" default="false"/>
+    <aura:attribute name="createNewApplicant" type="Boolean" default="false" />
+    <aura:attribute name="createAccountOption" type="Boolean" default="false"/>
+    <aura:attribute name="createApplicantOption" type="Boolean" default="false"/>
+    <aura:attribute name="canClose" type="Boolean" default="true"/>
+    <aura:handler name="change" value="{!v.lookupId}" action="{!c.changeLookupId}" />
+    <aura:attribute type="Boolean" name="required" default="false"/>
+    <div id="Lookup_Div">
+        <div class="slds-form-element slds-size--1-of-1">
+            <label class="slds-form-element__label" for="text-input-id-1">{!v.label}<span class="{!v.required ? 'slds-required' : 'slds-hide'}">*</span></label>
+            <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_right">
+                <aura:if isTrue="{!v.selectedLookup}">
+                    <!--<div class="slds-combobox_container slds-has-inline-listbox">
+                        </div>-->
+                        <div class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click"
+                             aria-expanded="false" aria-haspopup="listbox" role="combobox">
+                            <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_left-right"
+                                 role="none">
+                                    <span class="slds-icon_container slds-icon-standard-account slds-combobox__input-entity-icon"
+                                          title="account">
+                                    <lightning:icon size="small" iconName="custom:custom11"
+                                                    class="slds-icon slds-icon_small"/>
+                                    </span>
+                                <ui:inputText
+                                        class="slds-input slds-combobox__input slds-combobox__input-value disabledColor"
+                                         value="{!v.lookupValue}" placeholder="Search..." disabled="true" />
+                                <aura:if isTrue="{!v.canClose}" >
+                                    <aura:if isTrue="{!!v.DisableBorrower}" >
+                                    <lightning:buttonIcon variant="bare" iconName="utility:close" alternativeText="Delete"
+                                                      onclick="{!c.clearSelected}"
+                                                      class="slds-button slds-button_icon slds-input__icon slds-input__icon_right"/>
+                                    </aura:if>
+                                </aura:if>
+                            </div>
+                        </div>
+                    
+                    <aura:set attribute="else">
+                        <lightning:icon size="xx-small" iconName="utility:search"
+                                        class="slds-icon slds-input__icon slds-input__icon_right slds-icon-text-default"/>
+                        <ui:inputText class="slds-input" value="{!v.lookupValue}" keyup="{!c.getRecordNameList}"
+                                      updateOn="keyUp" placeholder="Search..." />
+                    </aura:set>
+                </aura:if>
+            </div>
+            <aura:if isTrue="{!v.lookupList.length > 0}">
+                <div id="listbox-unique-id" role="listbox" class="slds-scrollable " >
+                    <ul class="slds-scrollable slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid"
+                        role="presentation" style="max-height:200px;">
+                        <aura:iteration items="{!v.lookupList}" var="lookup">
+                            <li role="presentation" class="slds-listbox__item" accessKey="{!lookup.accountRecord}"
+                                title="{!lookup.Name}" id="{!lookup.Id}"
+                                onclick="{!c.selectedRecord}">
+                                <div id="listbox-option-unique-id-01"
+                                     class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta"
+                                     role="option">
+                                    <span class="slds-media__figure">
+                                        <span class="slds-icon_container slds-icon-standard-account"
+                                              title="Description of icon when needed">
+                                            <lightning:icon size="small" iconName="custom:custom11"
+                                                            class="slds-icon slds-icon_small"/>
+                                                <span class="slds-assistive-text">Description of icon when needed</span>
+                                        </span>
+                                    </span>
+                                    <span class="slds-media__body">
+                                        <span class="slds-listbox__option-text slds-listbox__option-text_entity">
+                                                {!lookup.Name}
+                                        </span>
+                                    </span>
+                                </div>
+                            </li>
+                        </aura:iteration>
+                    </ul>
+                </div>
+                <aura:set attribute="else">
+                    <aura:if isTrue="{!v.NoResults}">
+                        <div id="listbox-unique-id" role="listbox" class="slds-scrollable " style="height:30px;">
+                            <ul class="slds-scrollable slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid"
+                                role="presentation" style="height:30px;">
+                                <li role="presentation" class="slds-listbox__item slds-align_absolute-center">
+                                    Record not found.
+                                    <aura:if isTrue="{!or(v.createAccountOption, v.createApplicantOption)}">
+                                        <a onclick="{!c.createRecord}">+ Create new</a>
+                                    </aura:if>
+                                </li>
+                            </ul>
+                        </div>
+                    </aura:if>
+                </aura:set>
+            </aura:if>
+        </div>
+    </div>
+</aura:component>

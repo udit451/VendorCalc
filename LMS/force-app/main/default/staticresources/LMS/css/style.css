@@ -1,0 +1,10 @@
+.wrapper {
+  max-width: 800px;
+  margin: 50px auto;
+}
+
+a {
+  margin-top: 0px;
+  display: block;
+  color: #3e95cd;
+}

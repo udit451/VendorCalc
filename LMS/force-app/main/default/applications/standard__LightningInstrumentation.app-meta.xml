@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <formFactors>Large</formFactors>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
+    <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
+    <label>LightningInstrumentation</label>
+    <navType>Standard</navType>
+    <tabs>standard-LightningInstrumentation</tabs>
+    <tabs>quoteCal__Quote_Calculator__c</tabs>
+    <tabs>Loan_Repayment__c</tabs>
+    <tabs>quoteCal__Amortization_Schedule__c</tabs>
+    <tabs>Fee_Expense__c</tabs>
+    <uiType>Lightning</uiType>
+</CustomApplication>

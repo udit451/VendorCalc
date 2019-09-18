@@ -1,0 +1,36 @@
+<!--
+ - Created by Rajat on 3/9/2018.
+ -->
+
+<aura:component description="BS_Datepicker" access="global">
+    <ltng:require scripts="{!join(',',
+            $Resource.BS_Date + '/js/jquery-3.3.1.min.js',
+            $Resource.BS_Date + '/js/jquery.min.js',
+            $Resource.BS_Date + '/js/bootstrap-datepicker.min.js')}"
+                  styles="{!join(',',
+                          $Resource.BS_Date + '/css/bootstrap-datepicker3.css',
+                          $Resource.BS_Date + '/css/bootstrap-iso.css',
+                          $Resource.BS_Date + '/css/font-awesome.min.css')}"
+                  afterScriptsLoaded="{!c.doInit}" />
+
+    <aura:attribute name="idPrefix" type="String" required="true" />
+    <aura:attribute name="label" type="String" default="Date" access="global" />
+    <aura:attribute name="value" type="Date" access="global" />
+
+
+    <div class="bootstrap-iso">
+        <div class="container-fluid">
+            <div class="row">
+                <label class="slds-form-element__label" for="text-input-id-1">{!v.label}</label>
+                <div class="col-xs-12 form-horizontal" style="padding: 0;">
+                    <form class="form-horizontal" >
+                        <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_right" id="myModalId">
+                            <lightning:icon iconName="utility:event" size="xx-small"  class="slds-icon slds-input__icon slds-input__icon_right slds-icon-text-default" />
+                            <input class="form-control slds-size--1-of-1" aura:id="dateValue" id="{!'Datepicker_'+v.idPrefix}"  name="date" placeholder="DD/MM/YYYY" type="text" onchange="{!c.getDate}"  />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</aura:component>

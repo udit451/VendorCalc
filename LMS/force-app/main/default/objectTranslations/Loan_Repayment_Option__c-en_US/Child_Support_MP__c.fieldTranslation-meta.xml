@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Child Support - MP --></label>
+    <name>Child_Support_MP__c</name>
+</CustomFieldTranslation>

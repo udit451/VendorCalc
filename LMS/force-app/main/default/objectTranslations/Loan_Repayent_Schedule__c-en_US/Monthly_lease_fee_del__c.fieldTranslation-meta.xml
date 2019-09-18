@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Monthly lease fee --></label>
+    <name>Monthly_lease_fee_del__c</name>
+</CustomFieldTranslation>

@@ -1,0 +1,387 @@
+<aura:component description="PaymentTransactionTest" implements="forceCommunity:availableForAllPageTypes" controller="LMSNewRequirementTest">
+    <ltng:require scripts="{!join(',',
+            $Resource.LMS + '/js/jquery.min.js',
+            $Resource.LMS + '/js/jquery-ui.min.js'
+
+            )}" styles="{!join(',',
+            $Resource.LMS + '/css/jquery-ui.min.accordion.css',
+            $Resource.LMS + '/css/style.css',
+            $Resource.LMS + '/css/jquery-ui.css'
+            )}"  />
+
+    <aura:attribute name="SuccessMessage" type="String" default="Success!"/>
+    <aura:attribute name="ErrorMessage" type="String" default="Something mishappens!"/>
+    <aura:attribute name="PaymentTransaction" type="Payment_Transaction__c"
+                    default="{'sobjectType' : 'Payment_Transaction__c'}"/>
+    <aura:attribute name="LRSList" type="Object[]"/>
+    <aura:attribute name="PendingPaymentList" type="Object[]"/>
+    <aura:attribute name="OpenPaymentPopUp" type="Boolean" default="false" />
+    <aura:attribute name="showPayButton" type="Boolean" default="false" />
+    <aura:attribute name="OpenPendingSchedulePopUp" type="Boolean" default="false" />
+    <aura:attribute name="UpdatedLRSList" type="Object[]"/>
+    <aura:attribute name="TotalUnPaidAmount" type="Decimal" default=""/>
+    <aura:attribute name="NewLoanAmount" type="Decimal" default=""/>
+    <aura:attribute name="selectedOpt" type="String" default="" />
+    <aura:attribute name="LoanComplete" type="Boolean" default="false" />
+    <aura:attribute name="showAmountAdjustPopUp" type="Boolean" default="false" />
+    <aura:attribute name="isOpen" type="Boolean" default="false" />
+    <aura:attribute name="nextPaymentDate" type="Date" />
+
+    <div id="spinner_Div" style="display:none;">
+        <lightning:spinner aura:id="spinner_Div" variant="brand"/>
+    </div>
+
+    <div id="spinnerLMS_Div" style="display:none;">
+        <lightning:spinner aura:id="spinnerLMS_Div" variant="brand"/>
+    </div>
+
+    <div aura:id="SuccessToast" class="slds-backdrop slds-backdrop--open slds-hide" style="z-index: 10000">
+        <div class="slds-p-top_small" style="height: 4rem;">
+            <div class="slds-notify_container slds-is-relative">
+                <div class="slds-notify slds-notify_toast slds-theme_success" role="alert">
+                    <span class="slds-assistive-text">success</span>
+                    <span class="slds-icon_container slds-icon-utility-success slds-m-right_small slds-no-flex slds-align-top"
+                          title="Success">
+                    <lightning:icon alternativeText="Success" iconName="utility:success" size="small" class="fillclr"/>
+                </span>
+                    <div class="slds-notify__content">
+                        <h2 class="slds-text-heading_small ">{!v.SuccessMessage}</h2>
+                    </div>
+                    <button class="slds-button slds-button_icon slds-notify__close slds-button_icon-inverse"
+                            title="Close">
+                        <lightning:icon alternativeText="Close" iconName="utility:close" size="small" class="fillclr"/>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div aura:id="ErrorToast" class="slds-backdrop slds-backdrop--open slds-hide" style="z-index: 10000;">
+        <div class="demo-only" style="height: 4rem;">
+            <div class="slds-notify_container slds-is-relative">
+                <div class="slds-notify slds-notify_toast slds-theme_error" role="alert">
+                    <span class="slds-assistive-text">error</span>
+                    <span class="slds-icon_container slds-icon-utility-error slds-m-right_small slds-no-flex slds-align-top"
+                          title="Error">
+                    <lightning:icon alternativeText="Error" iconName="utility:error" size="small" class="fillclr"/>
+                </span>
+                    <div class="slds-notify__content">
+                        <h2 class="slds-text-heading_small ">{!v.ErrorMessage}</h2>
+                    </div>
+                    <button class="slds-button slds-button_icon slds-notify__close slds-button_icon-inverse"
+                            title="Close">
+                        <lightning:icon alternativeText="Close" iconName="utility:close" size="small" class="fillclr"/>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="navbar slds-border_left slds-border_right"
+         style="overflow: hidden;width: 100% !important; z-index: 10000; background: white !important;">
+        <div id="Header_Div" class="slds-page-header " style="background-color:lightgray;">
+            <div class="slds-media">
+                <div class="slds-media__figure ">
+                    <img src="{!$Resource.LMS + '/images/LMS_Logo.png'}" style="height: 30px; width: 75px;"/>
+                </div>
+                <div class="slds-media__body">
+                    <h1 class="slds-text-heading_medium slds-m-right_large" style="padding-left: 33%;" title="LMS"><b>Loan
+                        Management System</b></h1>
+                </div>
+            </div>
+        </div>
+
+        <div id="Path_Div " class="slds-path slds-p-top_medium slds-p-horizontal_large slds-border_bottom">
+            <div class="slds-grid slds-path__track">
+                <div class="slds-grid slds-path__scroller-container">
+                    <div class="slds-path__scroller" role="application">
+                        <div class="slds-path__scroller_inner">
+                            <h2 align="center" style="color: black;font-size: large">Payment Transaction</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="Payment_Container" class="slds-border_left slds-border_right slds-border_bottom"
+         style="background:transparent;">
+        <div id="Borrower_Page" style="background:transparent;">
+            <div class="slds-grid slds-wrap slds-p-around--large ">
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal--medium slds-p-vertical--xx-small">
+                    <ui:inputText label="Payer Id" required="true" class="slds-input" aura:id="payer_id"
+                                  value="{!v.PaymentTransaction.lms2__Payer_ID__c}" placeholder=""/>
+                </div>
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal--medium slds-p-vertical--xx-small">
+                    <ui:inputText label="Loan Application Number" required="true" class="slds-input" aura:id="loanAppNo"
+                                  value="{!v.PaymentTransaction.lms2__Loan_Account_No__c}"
+                                  placeholder=""/></div>
+            </div>
+            <aura:if isTrue="{!v.isOpen}">
+                <div class="slds-grid slds-wrap slds-p-around--large ">
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal--medium slds-p-vertical--xx-small">
+                        <ui:inputText label="Total UpPaid Ammount"  class="slds-input" aura:id="payer_id"
+                                      value="{!v.TotalUnPaidAmount}" placeholder=""/>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal--medium slds-p-vertical--xx-small">
+                        <ui:inputText label="Add New Loan Amount" class="slds-input" aura:id="loanAppNo"
+                                      value="{!v.NewLoanAmount}"
+                                      placeholder=""/></div>
+                </div>
+            </aura:if>
+
+            <div class="slds-grid slds-grid_align-end slds-p-around--large">
+                <div class="slds-col slds-p-horizontal--small">
+                    <lightning:button onclick="{!c.getSchedule}" name="get_Schedule" label="Get Repayment Schedule"
+                                      variant="brand"
+                                      iconName="utility:search"/>
+                    <aura:if isTrue="{!v.isOpen}">
+                        <lightning:button onclick="{!c.reCalculate}" name="get_Schedule" label="Recalculate"
+                                          variant="brand"
+                                          iconName="utility:save"/>
+                    </aura:if>
+                </div>
+            </div>
+            <div class="slds-card slds-hide" style ="margin:10px;" aura:id="getScheduleDiv">
+                <ul class="slds-accordion">
+                    <li class="slds-accordion__list-item">
+                        <div class="slds-accordion__summary" style="height:30px;background-color:#0070d2;color: white">
+                            <h3 style="margin-left:10px;padding:6px;" class="slds-text-heading_small slds-accordion__summary-heading">
+                                <span class="slds-truncate" title="Loan Repayment Schedule">Loan Repayment Schedule</span>
+                            </h3>
+                        </div>
+                        <section class="slds-scrollable slds-accordion__section slds-is-open" style="height: 350px !important;padding: 0px;">
+                            <div aria-hidden="false" class="slds-scrollable slds-accordion__content" id="accordion-details-01">
+                                <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                                    <thead  style="z-index: 100;width:100% !important;">
+                                    <tr class="slds-text-title_caps">
+                                        <th width="15%">
+                                            <div class="slds-truncate" title="Repayment Number"><b>Payment No.</b></div>
+                                        </th>
+                                        <th width="15%" >
+                                            <div class="slds-truncate" title="Payment Date"><b>Payment Date</b></div>
+                                        </th>
+                                        <th width="15%" >
+                                            <div class="slds-truncate" title="Status"><b>Opening Bal.</b></div>
+                                        </th>
+                                        <th width="15%">
+                                            <div class="slds-truncate" title="Interest"><b>Interest</b></div>
+                                        </th>
+                                        <th width="15%">
+                                            <div class="slds-truncate" title="Payment"><b>Payment</b></div>
+                                        </th>
+
+                                        <th width="15%">
+                                            <div class="slds-truncate" title="Status"><b>Closing Bal.</b></div>
+                                        </th>
+                                        <th width="10%">
+                                            <div class="slds-truncate" title="Status"><b>Status</b></div>
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <aura:iteration items="{!v.LRSList}" var="LRS">
+                                        <tr>
+                                            <th width="15%" >
+                                                <div class="slds-truncate" title="Repayment Number">{!LRS.Repayment_Number}</div>
+                                            </th>
+                                            <td width="15%" >
+                                                <div class="slds-truncate" title="Repayment Date"><ui:OutputDateTime format="dd/MM/yyyy" value="{!LRS.Repayment_Date}" /></div>
+                                            </td>
+                                            <td width="15%">
+                                                <div class="slds-truncate"  title="Opening Balance"><ui:outputCurrency value="{!LRS.Opening_Balance}"/></div>
+                                            </td>
+                                            <td width="15%" >
+                                                <div class="slds-truncate" title="Payment">
+                                                    <ui:outputCurrency value="{!LRS.Interest}"/>
+                                                </div>
+                                            </td >
+                                            <td width="15%" >
+                                                <div class="slds-truncate" title="Payment">
+                                                    <ui:outputCurrency value="{!LRS.Payment}"/>
+                                                </div>
+                                            </td >
+
+                                            <td width="15%" >
+                                                <div class="slds-truncate" ><ui:outputCurrency value="{!LRS.Closing_Balance}"/></div>
+                                            </td>
+                                            <td width="10%" >
+                                                <div class="slds-truncate" title="Status">{!LRS.Payment_Status}</div>
+                                            </td>
+                                        </tr>
+                                    </aura:iteration>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </li>
+                </ul>
+            </div>
+            <aura:if isTrue="{!v.showPayButton}" >
+                <div class="slds-grid slds-grid_align-end slds-m-around--large" aura:id="Button_Div">
+                    <lightning:button onclick="{!c.getPendingSchedule}" name="Pay" label="Pay"
+                                      variant="brand" iconName="utility:moneybag" />
+                </div>
+            </aura:if>
+            <aura:if isTrue="{!v.OpenPendingSchedulePopUp}" >
+                <div class="demo-only " style="height: 640px;">
+                    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                        <div class="slds-modal__container">
+                            <header class="slds-modal__header">
+                                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                                    <span class="slds-assistive-text">Close</span>
+                                </button>
+                                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Pending Schedule Details</h2>
+                            </header>
+                            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                <aura:if isTrue="{!v.PendingPaymentList.length > 0}">
+                                    <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                                        <thead >
+                                        <tr class="slds-text-title_caps">
+                                            <th width="20%">
+                                                <div class="slds-truncate" title="Name">Payment No.</div>
+                                            </th>
+                                            <th width="20%" >
+                                                <div class="slds-truncate" title="Payment Date">Payment Date</div>
+                                            </th>
+                                            <th width="20%" >
+                                                <div class="slds-truncate" title="Payment">Payment</div>
+                                            </th>
+                                            <th width="20%" >
+                                                <div class="slds-truncate" title="Status">Closing Balance</div>
+                                            </th>
+                                            <th width="20%" >
+                                                <div class="slds-truncate" title="Status">Status</div>
+                                            </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <aura:iteration items="{!v.PendingPaymentList}" var="LRS">
+                                            <tr>
+                                                <th>
+                                                    <div class="slds-truncate" title="Repayment Number">{!LRS.Repayment_Number}</div>
+                                                </th>
+                                                <td>
+                                                    <div class="slds-truncate" title="Repayment Date">{!LRS.Repayment_Date}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title="Payment">
+                                                        <ui:outputCurrency value="{!LRS.Payment}"/>
+                                                    </div>
+                                                </td>
+                                                <td >
+                                                    <div class="slds-truncate" title="Status"><ui:outputCurrency value="{!LRS.Closing_Balance}"/></div>
+                                                </td>
+                                                <td >
+                                                    <div class="slds-truncate" title="Status">{!LRS.Payment_Status}</div>
+                                                </td>
+                                            </tr>
+                                        </aura:iteration>
+                                        </tbody>
+                                    </table>
+                                    <aura:set attribute="else">
+                                        <aura:if isTrue="{!v.LoanComplete}" >
+                                            <h2 align="center" style="font-size: 15px">Your Loan is about to complete.
+                                                <br/>Visit Bank for details</h2>
+                                            <aura:set attribute="else">
+                                                <h2 align="center" style="font-size: 15px">No pending Schedules!!</h2>
+                                            </aura:set>
+                                        </aura:if>
+                                    </aura:set>
+                                </aura:if>
+                            </div>
+                            <footer class="slds-modal__footer">
+                                <lightning:button onclick="{!c.closePendingSchedulePopUp}" name="Cancel" label="Cancel"
+                                                  variant="destructive" iconName="utility:close" />
+                                <aura:if isTrue="{!!v.LoanComplete}" >
+                                    <lightning:button onclick="{!c.proceedPayment}" name="Proceed to Payment" label="Proceed to Payment"
+                                                      variant="brand" iconName="utility:moneybag" />
+                                </aura:if>
+                            </footer>
+                        </div>
+                    </section>
+                    <div class="slds-backdrop slds-backdrop_open"></div>
+                </div>
+            </aura:if>
+
+            <aura:if isTrue="{!v.OpenPaymentPopUp}" >
+                <div class="demo-only " style="height: 640px;">
+                    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                        <div class="slds-modal__container">
+                            <header class="slds-modal__header">
+                                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                                    <span class="slds-assistive-text">Close</span>
+                                </button>
+                                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Payment Details</h2>
+                            </header>
+                            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                <div class="slds-grid slds-wrap slds-p-around_large ">
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal&#45;&#45;medium slds-p-vertical&#45;&#45;xx-small">
+                                        <ui:inputCurrency label="Amount Requested" class="slds-input" aura:id="amt_requested" disabled="true"
+                                                          value="{!v.PaymentTransaction.lms2__Amount_Requested__c}" />
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal&#45;&#45;medium slds-p-vertical&#45;&#45;xx-small">
+                                        <ui:inputCurrency label="Payment Amount" required="true" class="slds-input" aura:id="payment_amt"
+                                                          value="{!v.PaymentTransaction.lms2__Payment_Amount__c}" placeholder=""/>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal&#45;&#45;medium slds-p-vertical&#45;&#45;xx-small">
+                                        <ui:inputText label="Loan Account Number"  class="slds-input" aura:id="loanAppNo" disabled="true"
+                                                      value="{!v.PaymentTransaction.lms2__Loan_Account_No__c}"/>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal&#45;&#45;medium slds-p-vertical&#45;&#45;xx-small">
+                                        <ui:inputSelect class="slds-select" value="{!v.PaymentTransaction.lms2__Transaction_Type__c}" label="Transaction Type" >
+                                            <ui:inputSelectOption text="Payer Debit Bank Account" label="Payer Debit Bank Account"/>
+                                            <ui:inputSelectOption text="Payer Credit Card Account" label="Payer Credit Card Account" />
+                                        </ui:inputSelect>
+                                    </div>
+                                </div>
+                            </div>
+                            <footer class="slds-modal__footer">
+                                <lightning:button onclick="{!c.closePaymentPopUp}" name="Cancel" label="Cancel"
+                                                  variant="destructive" iconName="utility:close" />
+                                <lightning:button onclick="{!c.checkPendingSchedule}" name="Pay" label="Pay"
+                                                  variant="brand" iconName="utility:moneybag" />
+                            </footer>
+                        </div>
+                    </section>
+                    <div class="slds-backdrop slds-backdrop_open"></div>
+                </div>
+            </aura:if>
+
+            <aura:if isTrue="{!v.showAmountAdjustPopUp}" >
+                <div class="demo-only " style="height: 640px;">
+                    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                        <div class="slds-modal__container">
+                            <header class="slds-modal__header">
+                                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                                    <span class="slds-assistive-text">Close</span>
+                                </button>
+                                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Adjust Extra Payment</h2>
+                            </header>
+                            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                <div class="slds-grid slds-wrap slds-p-around--large ">
+                                    <div class="slds-col slds-size_1-of-2 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal--medium slds-p-vertical--xx-small">
+                                        <lightning:input type="radio" label="Pay as Schedule" name="AdjustPayment" value="Pay Further Schedules" onchange="{!c.handleSelectedOption}" />
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal--medium slds-p-vertical--xx-small">
+                                        <lightning:input type="radio" label="Pay &amp; Reduce Capital" name="AdjustPayment" value="Pay Principal" onchange="{!c.handleSelectedOption}" />
+                                    </div>
+                                </div>
+                            </div>
+                            <footer class="slds-modal__footer">
+                                <lightning:button onclick="{!c.closeAdjustPaymentPopUp}" name="Cancel" label="Cancel"
+                                                  variant="destructive" iconName="utility:close"/>
+                                <lightning:button onclick="{!c.payAmountandAdjustPayment}" name="Pay" label="Pay"
+                                                  variant="brand" iconName="utility:moneybag"/>
+                            </footer>
+                        </div>
+                    </section>
+                    <div class="slds-backdrop slds-backdrop_open"></div>
+                </div>
+            </aura:if>
+        </div>
+    </div>
+</aura:component>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Applicant_2_Non_Taxable_Income_GAI__c</fullName>
+    <deprecated>false</deprecated>
+    <externalId>false</externalId>
+    <label>Applicant 2 - (Non-Taxable) Income - GAI</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackTrending>false</trackTrending>
+    <type>Currency</type>
+</CustomField>

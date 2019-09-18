@@ -1,0 +1,570 @@
+<!--
+ - Created by Rajat on 5/9/2019.
+ -->
+
+<aura:component description="LMSWizard" implements="forceCommunity:availableForAllPageTypes" controller="LMSWizard" access="global" >
+
+    <aura:attribute name="showSpinner" type="Boolean" default="false" />
+    <aura:attribute name="createNewAccount" type="Boolean" default="false" />
+    <aura:attribute name="createNewApplicant" type="Boolean" default="false" />
+    <aura:attribute name="salesPath" type="Integer" default="1" />
+    <aura:attribute name="variant" type="String" default="success" access="global"
+                    description="gives the variant to the toast"/>
+    <aura:attribute name="message" type="String" default="Record Saved Successfully!" access="global"
+                    description="gives the message to the toast"/>
+    <aura:attribute name="showToast" type="Boolean" default="false" access="global"
+                    description="to show or hide the toast"/>
+
+    <aura:attribute name="calculatorInstance" type="quoteCal__Quote_Calculator__c" default="{'sobjectType':'quoteCal__Quote_Calculator__c'}"
+                    access="global"/>
+    <aura:attribute name="accountObject" type="Account" default="{'sobjectType' : 'Account'}"/>
+    <aura:attribute name="opportunityObject" type="Opportunity" default="{'sobjectType' : 'Opportunity'}"/>
+    <aura:attribute name="LoansToConvert" type="object[]" />
+    <aura:attribute name="lenderNames" type="String[]" />
+    <aura:attribute name="SelectedOpp" type="String" />
+    <aura:attribute name="LoanConverted" type="boolean" default="false"/>
+    <aura:attribute name="LoanDetails" type="Object" />
+    <aura:attribute name="LRO" type="Object" />
+    <aura:attribute name="ContractDetails" type="Object" />
+    <aura:attribute name="LRepaymentSchedule" type="Object[]" />
+    <aura:attribute name="showQuoteCalc" type="boolean" default="false"/>
+    <aura:attribute name="isActive" type="String" default="1"/>
+    <aura:attribute name="searchDone" type="Boolean" default="false"/>
+    <aura:attribute name="isCorrect" type="Boolean" default="false"/>
+    <aura:attribute name="searchKey" type="String"/>
+    <aura:attribute name="filteredOptions" type="String[]"/>
+    <aura:attribute name="searchAddress" type="Object" default="" access="global"/>
+    <aura:attribute name="MinDate" type="Date" default="" />    
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <c:CA_Toast variant="{!v.variant}" message="{!v.message}" showToast="{!v.showToast}"/>
+    <aura:if isTrue="{!v.showSpinner}">
+        <lightning:spinner variant="brand" />
+    </aura:if>
+    <div class="navbar slds-border_left slds-border_right slds-border_bottom" style="overflow: hidden;width: 100% !important; z-index: 10000; background: white !important;">
+        <div id="Header_Div" class="slds-page-header " style="background-color:lightgray;">
+            <div class="slds-media">
+                <div class="slds-media__figure ">
+                    <img src="{!$Resource.LMS + '/images/LMS_Logo.png'}" style="height: 30px; width: 75px;"/>
+                </div>
+                <div class="slds-media__body">
+                    <h1 class="slds-text-heading_medium slds-m-right_large" style="padding-left: 33%;" title="LMS"><b>Loan Management System</b></h1>
+                </div>
+            </div>
+        </div>
+
+        <div id="Path_Div " class="slds-path slds-p-top_medium slds-p-horizontal_large slds-border_bottom">
+            <div class="slds-grid slds-path__track">
+                <div class="slds-grid slds-path__scroller-container">
+                    <div class="slds-path__scroller" role="application">
+                        <div class="slds-path__scroller_inner">
+                            <ul class="slds-path__nav" role="listbox" aria-orientation="horizontal">
+                                <li class="{!greaterthanorequal(v.salesPath, 1)?'slds-path__item slds-is-current slds-is-active':'slds-path__item slds-is-incomplete'}" role="presentation" >
+                                    <a aria-selected="true" class="slds-path__link" href="javascript:void(0);" id="path-1" role="option" tabindex="0">
+                                        <span class="slds-path__stage">
+                                            <span class="slds-assistive-text">Stage Complete</span>
+                                                </span>
+                                        <span class="slds-path__title">Borrower</span>
+                                    </a>
+                                </li>
+                                <li id="secondLi" class="{!greaterthanorequal(v.salesPath, 2)?'slds-path__item slds-is-current slds-is-active':'slds-path__item slds-is-incomplete'}" role="presentation" >
+                                    <a aria-selected="false" class="slds-path__link" href="javascript:void(0);" id="path-2" role="option" tabindex="-1">
+                                        <span class="slds-path__stage">
+                                            <span class="slds-assistive-text">Stage Complete</span>
+                                        </span>
+                                        <span class="slds-path__title">Application</span>
+                                    </a>
+                                </li>
+                                <li id="thirdLi" class="{!greaterthanorequal(v.salesPath, 3)?'slds-path__item slds-is-current slds-is-active':'slds-path__item slds-is-incomplete'}" role="presentation" >
+                                    <a aria-selected="false" class="slds-path__link" href="javascript:void(0);" id="path-3" role="option" tabindex="-1">
+                                        <span class="slds-path__stage">
+                                            <span class="slds-assistive-text">Current Stage:</span>
+                                        </span>
+                                        <span class="slds-path__title">Quote Calculator</span>
+                                    </a>
+                                </li>
+                                <li id="fourthLi" class="{!greaterthanorequal(v.salesPath, 4)?'slds-path__item slds-is-current slds-is-active':'slds-path__item slds-is-incomplete'}" role="presentation" >
+                                    <a aria-selected="false" class="slds-path__link" href="javascript:void(0);" id="path-3" role="option" tabindex="-1">
+                                        <span class="slds-path__stage">
+                                            <span class="slds-assistive-text">Current Stage:</span>
+                                        </span>
+                                        <span class="slds-path__title"  >Convert To Loan</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="container">
+            <aura:if isTrue="{!v.salesPath == 1}">
+                <div id="Borrower_Page" style="background:transparent;">
+                    <div class="slds-grid slds-wrap slds-p-around_large ">
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal_medium slds-p-vertical_xx-small">
+                            <aura:if isTrue="{!v.createNewAccount}">
+                                <ui:inputText label="Name" maxlength="50" required="true" class="slds-input" aura:id="accountName" 
+                                              value="{!v.accountObject.Name}" placeholder="eq- John" blur="{!c.borrowerChange}" />
+                                <aura:set attribute="else">
+                                    <c:CustomLookup label="Borrower Name" lookupId="" createAccountOption="true" required="true"
+                                                    lookupObjectAPI="Account" accountRecord="{!v.accountObject}" createNewAccount="{!v.createNewAccount}" />
+                                </aura:set>
+                            </aura:if>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal_medium slds-p-vertical_xx-small">
+                            <ui:inputEmail label="Email" maxlength="50" value="{!v.accountObject.lms2__Email__c}" aura:id="accountEmail" placeholder="abc@email.com" />
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal_medium slds-p-vertical_xx-small">
+                                <ui:inputPhone aura:id="phone" maxlength="10" label="Phone" class="field" value="{!v.accountObject.Phone}" placeholder="-"/>
+                            <!--<ui:inputNumber format="0000000000" label="Phone" size="10" class="slds-input" value="{!v.accountObject.Phone}" placeholder="-" />
+                            --></div>
+                        
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal_medium slds-p-vertical_xx-small">
+                                <ui:inputPhone aura:id="mob" maxlength="10" label="Mobile" class="field" value="{!v.accountObject.lms2__Mobile__c}" placeholder="-"/>
+                           <!-- <ui:inputNumber format="0000000000" label="Mobile" maxlength="10" aura:id="mob" class="slds-input" value="{!v.accountObject.lms2__Mobile__c}" placeholder="-" blur="{!c.checkValidityOfmobile}" />
+                       --></div>
+                        
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal_medium slds-p-vertical_xx-small">
+                            <!--<ui:inputTextArea label="Address" class="slds-input" value="{!v.accountObject.BillingStreet}"
+                                              placeholder="-"/>-->
+                            <div class="slds-col slds-size_1-of-1 ">
+                                <div class="slds-grid">
+                                    <div class="slds-col slds-size_4-of-4">
+                                        <aura:if isTrue="{!v.createNewAccount}">
+                                            <div class="slds-combobox_container ">
+                                            <div class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click slds-combobox-lookup"
+                                                 aria-expanded="false"
+                                                 aria-haspopup="listbox"
+                                                 role="combobox"
+                                                 aura:id="searchLookup">
+                                                <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right"
+                                                     aura:id="iconDirection">
+                                                    <aura:if isTrue="{!v.searchDone}">
+                                            <span class="slds-icon_container slds-input__icon slds-combobox__input-entity-icon">
+                                                <lightning:icon class="fixedIcon slds-p-top_small" iconName="utility:checkin"
+                                                                size="x-small"/>
+                                            </span>
+                                                    </aura:if>
+                                                    <ui:inputText aura:id="searchInput" updateOn="keyup" label="Address"
+                                                                  keyup="{!c.searchAddress}"
+                                                                  class="{!v.searchDone ? 'searchBox slds-input slds-combobox__input slds-truncate paddingLeft30' : 'searchBox slds-input slds-combobox__input'}"
+                                                                  value="{!v.searchKey}"
+                                                                  placeholder="Search..."/>
+                                                    <span class="slds-icon_container slds-input__icon slds-input__icon_right slds-p-top_x-small">
+                                            <aura:if isTrue="{!v.searchDone}">
+                                             <lightning:buttonIcon class="fixedIcon top3"
+                                                                   iconClass="removeTextCss"
+                                                                   iconName="utility:close" size="medium"
+                                                                   alternativeText="Close"
+                                                                   onclick="{!c.clearAddress}"
+                                                                   variant="bare"/>
+                                                <aura:set attribute="else">
+                                                    <lightning:icon iconName="utility:search" size="x-small"/>
+                                                </aura:set>
+                                            </aura:if>
+                                         </span>
+                                                </div>
+                                                <div id="listbox-unique-id" role="listbox">
+                                                    <ul class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid"
+                                                        role="presentation">
+                                                        <aura:iteration items="{!v.filteredOptions}" var="option">
+                                                            <li role="presentation"
+                                                                class="slds-listbox__item"
+                                                                onclick="{!c.selectOption}"
+                                                                data-value="{!option.value}"
+                                                                data-record="{!option.label}"
+                                                                data-placeid="{!option.PlaceId}"
+                                                                data-locaval="{!option.localVal}">
+                                                           <span id="listbox-option-unique-id-01"
+                                                                 class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta"
+                                                                 role="option">
+                                                               <span class="slds-media__body"
+                                                                     style="display: flex;align-items: center;">
+                                                                   <lightning:icon iconName="utility:checkin"
+                                                                                   alternativeText="CheckIn"/>
+                                                                   <span class="slds-listbox__option-text slds-listbox__option-text_entity"
+                                                                         style="display: inline-block;margin-left: 10px;">{!option.label}</span>
+                                                               </span>
+                                                           </span>
+                                                            </li>
+                                                        </aura:iteration>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        </aura:if>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal_medium slds-p-vertical_xx-small">
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal_medium slds-p-vertical_xx-small">
+                            <lightning:inputAddress
+                                    addressLabel=""
+                                    streetLabel="Street"
+                                    cityLabel="City"
+                                    countryLabel="Country"
+                                    provinceLabel="Province"
+                                    postalCodeLabel="Postal Code"
+                                    street="{!v.accountObject.BillingStreet}"
+                                    city="{!v.accountObject.BillingCity}"
+                                    country="{!v.accountObject.BillingCountry}"
+                                    province="{!v.accountObject.BillingState}"
+                                    postalCode="{!v.accountObject.BillingPostalCode}"
+                            />
+                        </div>
+                    </div>
+                    <div class="slds-grid slds-grid_align-end slds-p-around_large">
+                        <div class="slds-col slds-p-horizontal_small">
+                            <lightning:button onclick="{!c.resetClick}" name="Borrower_Page" label="Reset" variant="destructive"
+                                              iconName="utility:close"/>
+                        </div>
+                        <div class="slds-col slds-p-horizontal_small">
+                            <lightning:button onclick="{!c.saveClick}" name="Borrower_Page" label="Save" variant="brand"
+                                              iconName="utility:save"/>
+                        </div>
+                        <div class="slds-col slds-p-horizontal_small">
+                            <lightning:button onclick="{!c.saveAndNextClick}" name="Borrower_Page" label="Save &amp; Next"
+                                              variant="brand" iconName="utility:save"/>
+                        </div>
+                        <div class="slds-col slds-p-horizontal_small">
+                            <lightning:button onclick="{!c.nextClick}" disabled="{!or(v.accountObject.Id == null,v.accountObject.Id == undefined)}" name="Borrower_Page" label="Next" variant="brand"
+                                              iconName="utility:forward"/>
+                        </div>
+                    </div>
+                </div>
+            </aura:if>
+            <aura:if isTrue="{!v.salesPath == 2}">
+                <div id="Laon_Page" style="background:transparent;">
+                    <div class="slds-grid slds-wrap slds-p-around_large">
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal_medium slds-p-vertical_xx-small">
+                            <aura:if isTrue="{!v.createNewApplicant}">
+                                <ui:inputText label="Application Name" required="true" class="slds-input" aura:id="opportunityName"
+                                              value="{!v.opportunityObject.Name}" placeholder="eq- abc" blur="{!c.applicantChange}" />
+                                <aura:set attribute="else">
+                                    <c:CustomLookup label="Application Name" lookupId="" createApplicantOption="true" required="true"
+                                                    lookupObjectAPI="Opportunity" opportunityObject="{!v.opportunityObject}" createNewApplicant="{!v.createNewApplicant}"  />
+                                </aura:set>
+                            </aura:if>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal_medium slds-p-vertical_xx-small" aria-disabled="true">
+                            <c:CustomLookup label="Borrower" lookupId="{!v.opportunityObject.AccountId}" selectedLookup="true" canClose="Fasle" lookupValue="{!v.accountObject.Name}" lookupLabel="{!v.accountObject.Name}"
+                                            lookupObjectAPI="Account" />
+
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal_medium slds-p-vertical_xx-small">
+                            <lightning:input required="true" type="date" name="input6" class="DatePicker" label="Term Start Date" value="{!v.opportunityObject.CloseDate}" min="{!v.MinDate}"/>
+                        </div>
+                        <div class="slds-hide slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal_medium slds-p-vertical_xx-small">
+                            <ui:inputSelect class="slds-select" value="{!v.opportunityObject.StageName}" label="Stage" >
+                                <ui:inputSelectOption text="Prospecting" label="Prospecting"/>
+                                <ui:inputSelectOption text="Settled" label="Settled" value="true"/>
+                                <ui:inputSelectOption text="Closed Lost" label="Closed Lost"/>
+                            </ui:inputSelect>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal_medium slds-p-vertical_xx-small">
+                            <ui:inputCurrency label="Amount" class="slds-input" value="{!v.opportunityObject.Amount}"
+                                            placeholder="$"/>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal_medium slds-p-vertical_xx-small">
+                            <lightning:input name="appNumber" label="Application Number" placeholder="-" value="{!v.opportunityObject.lms2__Application_Number1__c}" disabled="true"/>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12 slds-p-horizontal_medium slds-p-vertical_xx-small">
+<!--                            <lightning:input name="Lender" label="Lender" placeholder="-" value="{!v.opportunityObject.lms2__Lender__c}" />-->
+                            <lightning:select name="Lender" label="Lender" value="{!v.opportunityObject.lms2__Lender__c}">
+                                <option value="">choose one...</option>
+                                <aura:iteration items="{!v.lenderNames}" var="lender">
+                                    <option value="{!lender}">{!lender}</option>
+                                </aura:iteration>
+                            </lightning:select>
+                        </div>
+                    </div>
+                    <div class="slds-grid slds-grid_align-end slds-p-around_large">
+                        <div class="slds-col slds-p-horizontal_small">
+                            <lightning:button onclick="{!c.resetClick}" name="Laon_Page" label="Reset" variant="destructive"
+                                              iconName="utility:close"/>
+                        </div>
+                        <div class="slds-col slds-p-horizontal_small">
+                            <lightning:button onclick="{!c.saveClick}" name="Laon_Page" label="Save" variant="brand"
+                                              iconName="utility:save"/>
+                        </div>
+                        <div class="slds-col slds-p-horizontal_small">
+                            <lightning:button onclick="{!c.saveAndNextClick}" name="Laon_Page" label="Save &amp; Next"
+                                              variant="brand" iconName="utility:save"/>
+                        </div>
+                        <div class="slds-col slds-p-horizontal_small">
+                            <lightning:button onclick="{!c.nextClick}" name="Laon_Page" disabled="{!or(v.opportunityObject.Id == null,v.opportunityObject.Id == undefined)}" label="Next" variant="brand"
+                                              iconName="utility:forward"/>
+                        </div>
+                    </div>
+                </div>
+            </aura:if>
+            <aura:if isTrue="{!v.salesPath == 3}">
+                <div id="calculator-container">
+                    <quoteCal:QuoteCalculator aura:id="quote" calculatorInstance="{!v.calculatorInstance}" QuoteDate="{!v.opportunityObject.CloseDate}" recordId="{!v.opportunityObject.Id}"  amountFinanced="{!v.opportunityObject.Amount}" customerName="{!v.opportunityObject.Name}"/>
+                    <div class="slds-grid slds-grid_align-end slds-p-right_medium slds-p-bottom_medium slds-p-top_medium" style="margin-top: -15px;">
+                        <div class="slds-col slds-p-horizontal_small">
+                            <lightning:button label="Reset" class="" iconName="utility:back" variant="destructive" onclick="{!c.resetClick}" name="calculator"/>
+                        </div>
+                        <div class="slds-col slds-p-horizontal_small">
+                            <lightning:button label="Save" class="" iconName="utility:save" variant="brand" onclick="{!c.saveClick}" name="calculator"/>
+                        </div>
+                        <div class="slds-col slds-p-horizontal_small">
+                            <lightning:button label="Save &amp; Next" class="" iconName="utility:save" variant="brand" onclick="{!c.saveAndNextClick}" name="calculator"/>
+                        </div>
+                        <div class="slds-col slds-p-horizontal_small">
+                            <lightning:button label="Amortization Table" disabled="{!v.monthAmortList.length == 0}" class="" iconName="utility:table" variant="brand" onclick="{!c.showTable}"/>
+                        </div>
+                        <div class="slds-col slds-p-horizontal_small">
+                            <lightning:button label="Next" class="" iconName="utility:forward" disabled="" variant="brand" onclick="{!c.nextClick}" name="calculator"/>
+                        </div>
+                    </div>
+                </div>
+            </aura:if>
+            <aura:if isTrue="{!v.salesPath == 4}">
+                <div id="Convert_To_Loan_Page" style="background:transparent;" class="slds-p-bottom--xx-large" >
+                    <div  aura:id="AppDiv" style="padding-right: 8%; padding-left: 8%; padding-top: 35px;" class="slds-hide" >
+                        <table class="slds-table slds-table_fixed-layout slds-table_bordered slds-border_right slds-border_left slds-no-row-hover slds-table_cell-buffer" role="grid">
+                            <thead>
+                            <tr class="slds-text-title_caps">
+                                <th>
+
+                                </th>
+                                <th scope="col">
+                                    <div class="slds-truncate" title="Name"><b>Application Name</b></div>
+                                </th>
+                                <th scope="col">
+                                    <!--                            <div class="slds-truncate" title="Date"><b>Created Date</b></div>-->
+                                    <div class="slds-truncate" title="Date"><b>Start Date</b></div>
+                                </th>
+                                <th scope="col">
+                                    <div class="slds-truncate" title="Amount"><b>Loan Amount</b></div>
+                                </th>
+                                <th scope="col">
+                                    <div class="slds-truncate" title="Period"><b>Loan Period</b></div>
+                                </th>
+                                <th scope="col">
+                                    <div class="slds-truncate" title="Interest"><b>Final Rate</b></div>
+                                </th>
+                                <th scope="col">
+                                    <div class="slds-truncate" title="Interest"><b>Repayment</b></div>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <aura:iteration items="{!v.LoansToConvert}" var="LoanList" indexVar="index">
+                                <tr>
+                                    <td>
+                                        <lightning:input type="radio" label="" name="ToConvertLoan" value="{!LoanList.Id}" onchange="{!c.handleSelectedOpp}" />
+                                    </td>
+                                    <td scope="row">
+                                        <div class="slds-truncate" title="{!LoanList.Name}">{!LoanList.Name}</div>
+                                    </td>
+                                    <td>
+                                        <ui:OutputDateTime format="dd/MM/yyyy" value="{!LoanList.TermStartDate}"/>
+                                    </td>
+                                    <td>
+                                        <div class="slds-truncate" title=""><ui:outputCurrency value="{!LoanList.LoanAmount}" /></div>
+                                    </td>
+                                    <td>
+                                        <div class="slds-truncate" title="">{!LoanList.LoanPeriod}</div>
+                                    </td>
+                                    <td>
+                                        <div class="slds-truncate" title=""><ui:outputNumber value="{!LoanList.FinalRate/100}" format="00.00%" /></div>
+                                    </td>
+                                    <td>
+                                        <div class="slds-truncate" title=""><ui:outputCurrency value="{!LoanList.Repayment}" /></div>
+                                    </td>
+                                </tr>
+                            </aura:iteration>
+                            </tbody>
+                        </table><br/>
+                        <div  class="slds-align_absolute-center">
+                            <lightning:button name="Convert To Loan" label="Convert To Loan" variant="brand"  iconName="utility:case" disabled="{!or(v.LoanConverted == true, v.SelectedOpp == null, v.SelectedOpp == undefined)}" onclick="{!c.convertLoan}" />
+                        </div><br/>
+                    </div>
+
+                    <div aura:id="NoAppDiv" class="" >
+                        <h1 style="margin-left: 29%; color: #FF0000; font-size: 200%;">No Applications found to convert.</h1>
+                    </div>
+
+                    <div class="slds-modal__content slds-p-around_medium " id="modal-content-id-1" >
+                        <ul class="{!v.showQuoteCalc == true ? 'slds-accordion slds-border_right slds-border_left slds-show ':'slds-accordion slds-border_right slds-border_left slds-hide'}" aura:id="QuoteLoanDetail">
+                            <li class="slds-accordion__list-item">
+                                <div class="{!v.isActive == '1' ? 'slds-accordion__summary AccActive':'slds-accordion__summary AccNonActive'}" onclick="{!c.ToggleSectionOne}" aura:id="AccordDivQ1" >
+                                    <h3 style="margin-left:10px;padding:6px;" class="slds-text-heading_small slds-accordion__summary-heading">
+                                        <lightning:icon class="{!v.isActive == '1' ? 'fillIcon':''}" aura:id="right_icon" iconName="{!v.isActive == '1' ? 'utility:down':'utility:right'}" size="x-small"/>
+                                        <span class="slds-truncate" style="margin: 0 0.3em;" title="Loan Repayment Schedule">Loan Details</span>
+
+                                    </h3>
+                                </div>
+                                <section class="{!v.isActive == '1' ? 'slds-accordion__section slds-is-open':'slds-accordion__section slds-hide'}" aura:id="LoanSection1"  >
+                                    <div aria-hidden="false" class="slds-accordion__content" id="accordion-details-01">
+                                        <table class="slds-table slds-table_fixed-layout slds-no-row-hover slds-table_cell-buffer" role="grid">
+                                            <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Loan"><B>Loan</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class=" slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Loan" onclick="{!c.RedirectToLoan}"><a href="#">{!v.LoanDetails.Name}</a></div>
+                                                </td>
+                                                <td>
+                                                    <div class=" slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Account Name"><B>Account Name</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Account Name">{!v.LoanDetails.AccountName}</div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Application Related To"><B>Application Related To</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Application Related To">{!v.LoanDetails.ApplicationRelatedTo}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Current Monthly Loan Repayment"><B>Current Monthly Loan Repayment</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Current Monthly Loan Repayment"><ui:outputCurrency value="{!v.LoanDetails.CurrentMonthlyLoanRepayment}" /></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Loan Account Number"><B>Loan Account Number</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Loan Account Number">{!v.LoanDetails.LoanAccountNo}</div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </section>
+                            </li>
+                            <li class="slds-accordion__list-item">
+                                <div class="{!v.isActive == '2' ? 'slds-accordion__summary AccActive':'slds-accordion__summary AccNonActive'}"  onclick="{!c.ToggleSectionTwo}" aura:id="AccordDivQ2" >
+                                    <h3 style="margin-left:10px;padding:6px;" class="slds-text-heading_small slds-accordion__summary-heading">
+                                        <lightning:icon class="{!v.isActive == '2' ? 'fillIcon':''}" aura:id="right_icon" iconName="{!v.isActive == '2' ? 'utility:down':'utility:right'}" size="x-small"/>
+                                        <span class="slds-truncate" style="margin: 0 0.3em;" title="Loan Repayment Schedule">Contract Details</span>
+                                    </h3>
+                                </div>
+                                <section class="{!v.isActive == '2' ? 'slds-accordion__section slds-is-open':'slds-accordion__section slds-hide'}" aura:id="LoanSection"  >
+                                    <div aria-hidden="false" class="slds-accordion__content" id="accordion-details-01">
+                                        <table class="slds-table slds-table_fixed-layout slds-no-row-hover slds-table_cell-buffer" role="grid">
+                                            <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Contract Number"><B>Contract Number</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class=" slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Contract Number">{!v.ContractDetails.ContractNumber}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Term"><B>Contract Term(months)</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Term">{!v.ContractDetails.Term}</div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class=" slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Start Date"><B>Start Date</B></div>
+
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Start Date"> <ui:OutputDateTime format="dd/MM/yyyy" value="{!v.ContractDetails.StartDate}"/></div>
+
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="End Date"><B>End Date</B></div>
+
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="End Date"> <ui:OutputDateTime format="dd/MM/yyyy" value="{!v.ContractDetails.EndDate}"/></div>
+
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div> 
+                                </section>
+                            </li>
+                            <li class="slds-accordion__list-item">
+                                <div class="{!v.isActive == '4' ? 'slds-accordion__summary AccActive':'slds-accordion__summary AccNonActive'}"  onclick="{!c.ToggleSectionFour}" aura:id="AccordDivS4" >
+                                    <h3 style="margin-left:10px;padding:6px;" class="slds-text-heading_small slds-accordion__summary-heading">
+                                        <lightning:icon class="{!v.isActive == '4' ? 'fillIcon':''}" aura:id="right_icon" iconName="{!v.isActive == '4' ? 'utility:down':'utility:right'}" size="x-small"/>
+                                        <span class="slds-truncate" style="margin: 0 0.3em;" title="Loan Repayment Schedule">Loan Repayment Schedules</span>
+                                    </h3>
+                                </div>
+                                <section class="{!v.isActive == '4' ? 'slds-accordion__section slds-scrollable slds-is-open':'slds-accordion__section slds-hide'}" aura:id="LoanRSSection1" style="height:250px;">
+                                    <div aria-hidden="false" class="slds-accordion__content" id="accordion-details-03">
+                                        <table class="slds-table slds-table_fixed-layout slds-table_bordered slds-border_right slds-border_left slds-no-row-hover slds-table_cell-buffer" role="grid">
+                                            <thead>
+                                            <tr class="slds-text-title_caps">
+                                                <th>
+                                                    <div class="slds-truncate" title="Repayment Number"><b>Payment No.</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Payment Date"><b>Payment Date</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Opening Balance"><b>Opening Balance</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Payment"><b>Payment</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Interest"><b>Interest</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Interest"><b>Fee</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Closing Balance"><b>Closing Balance</b></div>
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <aura:iteration items="{!v.LRepaymentSchedule}" var="LRS" indexVar="index">
+                                                <tr>
+                                                    <td>
+                                                        <div class="slds-truncate" title="Repayment Number">{!LRS.RepaymentNumber}</div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="slds-truncate" title="Payment Date"><ui:OutputDateTime format="dd/MM/yyyy" value="{!LRS.EstimatedRepaymentDate}" /></div>
+                                                    </td>
+
+                                                    <td>
+                                                        <div class="slds-truncate" title="Opening Balance"><ui:outputCurrency value="{!LRS.OpeningBalance}"/></div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="slds-truncate" title="Payment"><ui:outputCurrency value="{!LRS.Payment}"/></div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="slds-truncate" title="Interest"><ui:outputCurrency value="{!LRS.Interest}"/></div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="slds-truncate" title="Interest"><ui:outputCurrency value="{!LRS.ServicingAmount}"/></div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="slds-truncate" title="Closing Balance"><ui:outputCurrency value="{!LRS.ClosingBalance}"/></div>
+                                                    </td>
+                                                </tr>
+                                            </aura:iteration>
+                                            </tbody>
+                                        </table></div>
+                                </section>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </aura:if>
+        </div>
+    </div>
+
+</aura:component>

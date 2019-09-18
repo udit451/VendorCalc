@@ -1,0 +1,91 @@
+/**
+ * Created by Rajat on 3/6/2018.
+ */
+.THIS {
+}
+.THIS .fillclr svg{
+    fill: #fff!important;
+}
+.THIS .backWhiteClass {
+    background: white !important;
+}
+.THIS .backTransParentClass {
+    background: transparent;
+}
+.THIS .paddingtopFivePercent {
+    padding-top: 5%;
+}
+.THIS .buttonColorchange {
+    background-color: #65bfff;
+    color: black;
+    font-weight: bold;
+    box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+    padding: 3px 0px 3px 3px;
+    margin: 5px 1px 3px 0px;
+    border: 1px solid rgba(81, 203, 238, 1);
+}
+.THIS .paddingtopThreePercent {
+    padding-top: 3%;
+}
+.THIS .fillGreen svg{
+    fill: green!important;
+}
+.THIS .style-7::-webkit-scrollbar
+{
+    width: 10px;
+    height: 10px;
+    background-color: #F5F5F5;
+}
+
+.THIS .style-7::-webkit-scrollbar-thumb
+{
+    border-radius: 10px;
+    background-image: -webkit-gradient(linear,
+    left bottom,
+    left top,
+    color-stop(0.44, rgb(122,153,217)),
+    color-stop(0.72, rgb(73,125,189)),
+    color-stop(0.86, rgb(28,58,148)));
+}
+.THIS #LMS_Container {
+    min-height: 35vh;
+}
+.THIS #LMS_Container:before {
+    /*background: url('/resource/ComCalc/images/BijakWM.png') no-repeat fixed center;*/
+    background: url('/resource/LMS/images/LMS_Logo.png') no-repeat fixed center;
+    /*background: url('/resource/ComCalc/images/KubioLogo.png') no-repeat fixed center;*/
+    content: "";
+    position: fixed;
+    display: flex;
+    z-index: -1;
+    opacity: .1;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 80%;
+}
+.THIS .AccActive {
+    height:30px;
+    background-color:#0070d2;
+    color: white;
+}
+
+.THIS .AccNonActive {
+    height:30px;
+    background-color:whitesmoke;
+    color: black;
+}
+
+.THIS .fillIcon svg {
+    fill: white;
+}
+
+.THIS .DatePicker div .slds-form-element{
+    width: 100%;
+}
+
+.THIS .tableCSSelement {
+    left: 30%;
+    position: fixed;
+    top: 48.85%;
+}

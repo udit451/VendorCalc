@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Total Adjusted Interest over Loan Pe --></label>
+    <name>Total_Adjusted_Interest_over_Loan_Pe__c</name>
+</CustomFieldTranslation>

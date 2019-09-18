@@ -1,0 +1,20 @@
+<!--
+ - Created by Rajat on 3/6/2018.
+ -->
+
+<apex:page id="LMSConfig" sideBar="false" showHeader="false">
+    <apex:includeLightning />
+    <div id="LMSDiv"></div>
+
+    <script>
+    $Lightning.use("lms2:LMSApp", function () {
+        $Lightning.createComponent(
+            "lms2:PaymentTransaction",
+            { },
+            "LMSDiv",
+            function (cmp) {
+            }
+        );
+    });
+    </script>
+</apex:page>

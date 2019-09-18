@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Loan_Repayment_Option__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <deprecated>false</deprecated>
+    <externalId>false</externalId>
+    <label>Loan Repayment Option</label>
+    <referenceTo>Loan_Repayment_Option__c</referenceTo>
+    <relationshipLabel>Loan Repayments</relationshipLabel>
+    <relationshipName>Loan_Repayments</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

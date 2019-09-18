@@ -1,0 +1,22 @@
+.THIS .fillclr svg{
+    fill: #fff!important;
+}
+.THIS .zIndex {
+    z-index: 10000;
+}
+
+.THIS .AccActive {
+    height:30px;
+    background-color:#0070d2;
+    color: white;
+}
+
+.THIS .AccNonActive {
+    height:30px;
+    background-color:whitesmoke;
+    color: black;
+}
+
+.THIS .fillIcon svg {
+    fill: white;
+}

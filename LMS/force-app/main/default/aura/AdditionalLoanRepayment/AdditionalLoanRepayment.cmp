@@ -1,0 +1,143 @@
+<aura:component access="global" description="AdditionalLoanRepayment" controller="AdditionalLoanRepayment">
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="calculator" type="Object" access="global"/>
+    <aura:attribute name="AmortizationTable" type="Boolean" access="global" default="false"/>
+    <aura:attribute name="recordIdMenu" type="String" access="global" />
+    <aura:attribute name="MonthlyMortgageRepayment" type="Decimal" default="0.00" description=""/>
+    <aura:attribute name="monthAmortListToInsert" type="object[]" default="null" />
+    <div class="slds-p-around_xx-large">
+        <lightning:layout>
+            <lightning:layoutItem flexibility="grow">
+                <lightning:input type="number" name="input3" value="{!v.calculator.LoanAmmount}" label="Loan Amount" />
+            </lightning:layoutItem>
+        </lightning:layout>
+        <lightning:layout>
+            <lightning:layoutItem flexibility="grow">
+                <lightning:input type="text" name="input3" value="{!v.calculator.InterestRate}" label="Interest Rate on new Loan"/>
+            </lightning:layoutItem>
+        </lightning:layout>
+        <lightning:layout>
+            <lightning:layoutItem flexibility="grow">
+                <lightning:input type="number" name="input3" value="{!v.calculator.LoanTerm}" label="New Loan Term (Years)"/>
+            </lightning:layoutItem>
+        </lightning:layout>
+        <lightning:layout class="slds-p-top_medium">
+            <lightning:layoutItem flexibility="grow">
+                <lightning:button variant="brand" label="Calculate" title="Calculate" iconName="utility:metrics" iconPosition="left" onclick="{! c.calculate }" />
+                <lightning:button variant="brand" label="Save" title="Save" iconName="utility:save" iconPosition="left" onclick="{! c.saveCalvalue }"/>
+                <lightning:button variant="destructive" label="Reset" title="Reset" iconName="utility:close" iconPosition="left" onclick="{! c.reset }"/>
+            </lightning:layoutItem>
+        </lightning:layout>
+        <aura:if isTrue="{!v.AmortizationTable}">
+            <div class="ForgetPassemailSent" style="display: block" id="ForgetPassemailSent">
+                <div role="dialog" tabindex="-1" aria-labelledby="header99" class="slds-modal slds-fade-in-open ">
+                    <div class="slds-modal__container" style="width: 100%;max-width: 100rem;">
+                        <!-- ###### MODAL BOX HEADER Part Start From Here ######-->
+                        <div class="slds-modal__header"
+                             style="background-color: #f9f9fa;border: solid 1px #a79a9a;border-bottom: none;">
+                            <button class="slds-button slds-modal__close slds-button--icon-inverse" title="Close"
+                                    onclick="{!c.closeATPopup}">X
+                                <span class="slds-assistive-text">Close</span>
+                            </button>
+                            <h2 id="header99" class="slds-text-heading--medium"><b>Amortization Table</b></h2>
+                        </div>
+                        <div class="slds-modal__content slds-p-around--medium" style="border: solid 1px #a79a9a;">
+                            <table id="MonthlylyAmortizationTable"
+                                   class="slds-table slds-table--bordered slds-table--fixed-layout slds-m-top--small slds-table--striped"
+                                   style="border-bottom:1px solid #D8DDE6;">
+                                <thead>
+                                <tr class="slds-text-heading--label">
+                                    <th scope="col">
+                                        <div class="slds-truncate printFont" title="#"><b>#</b></div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate printFont" title="Payment Date"><b>Payment Date</b>
+                                        </div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate printFont" title="Opening Balance"><b>Opening
+                                            Balance</b></div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate printFont" title="Interest"><b>Interest</b></div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate printFont" title="Principal"><b>Principal</b></div>
+                                    </th>
+                                    <th class="{!v.isBCS == false ? 'slds-hide' : 'slds-show'}" scope="col">
+                                        <div class="slds-truncate printFont" title="Property Tax"><b>Property Tax</b>
+                                        </div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate printFont" title="Payment"><b>Payment</b></div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate printFont" title="Closing Balance"><b>Closing
+                                            Balance</b></div>
+                                    </th>
+                                    <!--th scope="col">
+                                    <div class="slds-truncate printFont" title="% Capital Outstanding">% Capital Outstanding</div>
+                                </th-->
+                                    <th scope="col">
+                                        <div class="slds-truncate printFont" title="# Remaining"><b># Remaining</b>
+                                        </div>
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <aura:iteration items="{!v.monthAmortListToInsert}" var="ma">
+                                    <tr class="printFont">
+                                        <td>
+                                            <ui:outputNumber value="{!ma.servicecal__Payment_Number__c}"/>
+                                        </td>
+                                        <td>
+                                            <ui:outputDate aura:id="MonthlyDifference"
+                                                           value="{!ma.servicecal__Payment_Date__c}" format="dd/MM/yyyy"/>
+                                        </td>
+                                        <td>
+                                            <ui:outputCurrency format="$###,###,##0.00" aura:id="MonthlyDifference"
+                                                               value="{!ma.servicecal__Opening_Balance__c}"/>
+                                        </td>
+                                        <td>
+                                            <ui:outputCurrency format="$###,###,##0.00" aura:id="MonthlyDifference"
+                                                               value="{!ma.servicecal__Interest__c}"/>
+                                        </td>
+                                        <td>
+                                            <ui:outputCurrency format="$###,###,##0.00" aura:id="MonthlyDifference"
+                                                               value="{!ma.servicecal__Principal__c}"/>
+                                        </td>
+                                        <td class="{!v.isBCS == false ? 'slds-hide' : 'slds-show'}">
+                                            <ui:outputCurrency format="$###,###,##0.00" aura:id="MonthlyDifference"
+                                                               value="32.91"/>
+                                        </td>
+                                        <td>
+                                            <!--{!ma.MortgageCalc__Fixed_Monthly_Repayments__c}-->
+                                            <ui:outputCurrency format="$###,###,##0.00" aura:id="MonthlyDifference"
+                                                               value="{!ma.servicecal__Payment__c}"/>
+                                        </td>
+                                        <td>
+                                            <ui:outputCurrency format="$###,###,##0.00" aura:id="MonthlyDifference"
+                                                               value="{!ma.servicecal__Closing_Balance__c}"/>
+                                        </td>
+                                        <td>
+                                            <ui:outputNumber value="{!ma.servicecal__Remaining__c}"/>
+                                        </td>
+                                    </tr>
+                                </aura:iteration>
+                                </tbody>
+                            </table>
+
+                        </div>
+                        <div class="slds-modal__footer" style="border: solid 1px #a79a9a;border-top: none;">
+                            <lightning:button variant="brand" label="Print" iconName="utility:save"
+                                              class="slds-hide slds-button slds-button_destructive" onclick="{!c.printWin}"/>
+                            <lightning:button variant="brand" label="Exit" iconName="utility:close"
+                                              class="slds-button slds-button_base" onclick="{!c.closeATPopup}"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-backdrop slds-backdrop--open"></div>
+            </div>
+        </aura:if>
+    </div>
+</aura:component>

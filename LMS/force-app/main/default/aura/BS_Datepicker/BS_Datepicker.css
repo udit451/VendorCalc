@@ -1,0 +1,37 @@
+/**
+ * Created by Rajat on 3/9/2018.
+ */
+.THIS {
+}
+
+.THIS .bootstrap-iso {
+    font-family: Arial, Helvetica, sans-serif; color: black;
+}
+
+.THIS .formden_header h2{
+    font-family: Arial, Helvetica, sans-serif; color: black;
+}
+
+.THIS .bootstrap-iso {
+    font-family: Arial, Helvetica, sans-serif; color: black;
+}
+
+.THIS .formden_header p{
+    font-family: Arial, Helvetica, sans-serif; color: black;
+}
+
+.THIS .bootstrap-iso form{
+    font-family: Arial, Helvetica, sans-serif; color: black;
+}
+
+.THIS .bootstrap-iso form button{
+    color: white !important;
+}
+
+.THIS .bootstrap-iso form button:hover{
+    color: white !important;
+}
+
+.THIS .asteriskField{
+    color: red;
+}

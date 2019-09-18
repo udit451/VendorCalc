@@ -1,0 +1,40 @@
+<aura:component controller ="LoanPDFSummaryCls" description="LMSLoanPDFSummaryButton" implements="force:hasRecordId,forceCommunity:availableForAllPageTypes" access="global"> 
+
+    <aura:attribute name="isOpenPDF" type="Boolean" default="false" />
+    <aura:attribute name="fileUrl" default="" type="String" />
+    <lightning:button variant="brand" class="slds-size_1-of-1 slds-medium-size_6-of-6 slds-large-size_12-of-12" label="Generate PDF" title="Generate PDF" onclick="{!c.generatePDF}"/>
+    
+    <aura:if isTrue="{!v.isOpenPDF}">
+       
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+                     aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_medium" style="height:640px">
+                <div class="slds-modal__container" >
+                    <header class="slds-modal__header head">
+                        <button class="slds-button slds-modal__close slds-button--icon-inverse" onclick="{!c.closeAlertPopUp}">
+                            <lightning:icon iconName="utility:close" alternativeText="close" size="x-small" title="Close" variant="bare"/>
+                        </button>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Loan Summary</h2>
+                    </header>
+                   <div class="slds-modal__content modelContent" style="height:640px">
+                        <iframe src="{!v.fileUrl}" style="height:100%;width:100%;"/>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+            <!--<aura:set attribute="else">
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+                         aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container">
+                        <header class="slds-modal__header head">
+                            <button class="slds-button slds-modal__close slds-button__icon-inverse" onclick="{!c.closeAlertPopUp}">
+                                <lightning:icon iconName="utility:close" alternativeText="close" size="x-small" title="Close" variant="bare"/>
+                            </button>
+                            <h2 class="headerWordingCSS slds-hyphenate">Alert</h2>
+                        </header>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+            </aura:set>-->
+        
+    </aura:if>
+</aura:component>

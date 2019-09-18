@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Montlhy sales tax payment --></label>
+    <name>Montlhy_sales_tax_payment__c</name>
+</CustomFieldTranslation>

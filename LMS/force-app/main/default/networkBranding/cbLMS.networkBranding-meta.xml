@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NetworkBranding xmlns="http://soap.sforce.com/2006/04/metadata">
+    <loginBackgroundImageUrl>https://c.ap5.content.force.com/sfc/servlet.shepherd/version/renditionDownload?rendition=ORIGINAL_Jpg&amp;versionId=0687F00000V0Hot&amp;operationContext=CHATTER&amp;contentId=05T7F00001ZBIrw</loginBackgroundImageUrl>
+    <loginFooterText>applab.live</loginFooterText>
+    <loginLogo>Communities_Shared_Document_Folder/Chase_Finance_Logo_png.png</loginLogo>
+    <loginLogoName>Chase Finance Logo.png</loginLogoName>
+    <loginPrimaryColor>#1797C0</loginPrimaryColor>
+    <loginQuaternaryColor>#B1BAC1</loginQuaternaryColor>
+    <network>LMS</network>
+    <primaryColor>#1797C0</primaryColor>
+    <primaryComplementColor>#FFFFFF</primaryComplementColor>
+    <quaternaryColor>#B1BAC1</quaternaryColor>
+    <quaternaryComplementColor>#222222</quaternaryComplementColor>
+    <secondaryColor>#51606E</secondaryColor>
+    <tertiaryColor>#DDE4E9</tertiaryColor>
+    <tertiaryComplementColor>#222222</tertiaryComplementColor>
+    <zeronaryColor>#51606E</zeronaryColor>
+    <zeronaryComplementColor>#FFFFFF</zeronaryComplementColor>
+</NetworkBranding>

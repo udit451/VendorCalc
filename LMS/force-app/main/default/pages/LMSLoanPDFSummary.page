@@ -1,0 +1,332 @@
+<apex:page renderAs="pdf" sidebar="false" showHeader="false" cache="false" applyHtmlTag="false" applyBodyTag="false"
+           label="Loan Summary" title="Loan Summary" controller="LoanPDFSummaryCls">
+    <html>
+        <head>
+            <style type="text/css" media="print">
+                @page {
+                margin-bottom: 9%;
+                margin-right: 7%;
+                margin-left: 5%;
+                size: A4;
+                
+                @bottom-left {
+                content: element(footer);
+                }
+                }
+                
+                
+                .pagenumber:before {
+                content: counter(page);
+                }
+                
+                .pagecount:before {
+                content: counter(pages);
+                }
+                #customers {
+                
+                border-collapse: collapse;
+                width: 100%;
+                font-family: 'Arial Unicode MS';
+                }
+                
+                #customers td, #customers th {
+                border: 1px solid #ddd;
+                padding: 5px;
+                font-family: 'Arial Unicode MS';
+                font-size:10px;
+                text-align: center;
+                }
+                
+                
+                
+                #customers th {
+                padding-top: 10px;
+                padding-bottom: 10px;
+                
+                text-align: center;
+                background-color: #009EDB;
+                color: white;
+                font-weight:bold;
+                font-size:12px;
+                font-weight:bolder
+                }
+                
+                div.footer {
+                margin-left: 3px;
+                margin-top: 0px;
+                margin-right: 5px;
+                margin-bottom: 2px;
+                position: running(footer);
+                padding: 0.5px;
+                background-color: #009EDB;
+                }
+                .pagenumber:before {
+                content: counter(page);
+                }
+                
+                .pagecount:before {
+                content: counter(pages);
+                }
+                #nameHeader td{
+                font-family: 'Arial Unicode MS';
+                font-size:12px;
+                width: 25%;
+                }
+                .headerAddressCSS {
+                font-size: 12px;
+               
+                }
+                .headerNameCSS{
+                padding-bottom:5px;
+
+                }
+                
+            </style>
+        </head>
+        <div class="footer" style="font-size:8pt;font-weight:bolder;font-family: 'Arial Unicode MS';text-align: right; color:black;">
+            <div style="float: left;margin-left: -17px;">Page <span class="pagenumber"/> of <span class="pagecount"/></div>
+        </div>
+        
+        <div class = "container">
+            <apex:outputPanel rendered="{!hasLoanId}">
+                    <div class="content">
+                            <table width="100%">
+                                <tr>
+                                    <td width="50%">
+                                        <div class="headerNameCSS">{!currentuser.Name}</div>
+                                        <div class="headerAddressCSS">Contact: {!currentuser.Name}
+                                            (Mobile) {!currentuser.MobilePhone} </div>
+                                        <div class="headerAddressCSS">
+                                            Street/Postal: {!currentuser.Street} {!currentuser.City}
+                                            , {!currentuser.State},
+                                                {!currentuser.PostalCode}, {!currentuser.Country}</div>
+                                    </td>
+                                    <td width="50%" align="right">
+
+                                            <img style="width:25%;" src="{!logoUrl}"/>
+                                    </td>
+                                    
+                                </tr>
+                            </table>
+                        </div>
+                        <hr/>
+
+                        <div align="center">
+                                <h2>Loan Summary</h2>
+                        </div>
+                        <hr/>
+                <div>
+                    <table width="100%" id = "nameHeader">
+                        <tr>
+                            <td class="tableTd1" width="22%" >
+                                Loan Name:
+                            </td>
+                            <td class="tableTd2" width="10%" >
+                                {!loanAccount.Name}
+                            </td>
+                            <td class="tableTd1" width="20%">
+                               Account Name:
+                            </td>
+                            <td class="tableTd2" width="5%" >
+                                {!loanAccount.lms2__Account_Name__r.Name}
+                            </td>
+                        </tr>
+                        <tr>    
+                            <td class="tableTd1" width="42%">
+                                Loan Account No.:
+                            </td>
+                            <td class="tableTd2" width="10%" >
+                                {!loanAccount.lms2__Loan_Account_No__c}
+                            </td>
+
+                            <td class="tableTd1" width="10%">
+                                Start Date:
+                            </td>
+                            <td>
+                            <apex:outputText value="{0,date,MM'/'dd'/'yyyy}">
+                                <apex:param value="{!loanAccount.Term_Start_Date__c}" /> 
+                            </apex:outputText>
+                            </td>
+                        </tr>
+                        <tr>    
+                            <td class="tableTd1" width="10%">
+                               End Date:
+                            </td>
+                            <td>
+                            <apex:outputText value="{0,date,MM'/'dd'/'yyyy}">
+                                <apex:param value="{!loanAccount.Term_End_Date__c}" /> 
+                            </apex:outputText>
+                            </td>
+                            <td class="tableTd1" width="10%">
+                                Loan Amount:
+                            </td>
+                            <td class="tableTd2"  width="10%">
+                             <apex:outputText value="${0, number, ###,###,###,###.00}">
+                                    <apex:param value="{!loanAccount.Loan_Amount_c__c}" /> 
+                            </apex:outputText>
+                                
+                            </td>
+                        </tr>    
+                         
+                        <tr>   
+                            <td class="tableTd1" width="33%">
+                                Terms Of Loan:
+                            </td>
+                            <td class="tableTd2" width="10%">
+                                {!Text(loanAccount.Term_of_Loan_N__c)} months
+                            </td>
+                            <td class="tableTd1" width="42%">
+                                Customer Rate:
+                            </td>
+                            <td class="tableTd2" width="10%">
+                            <apex:outputText value="{0, number, ###,###,###,###.00}%">
+                                <apex:param value="{!loanAccount.Customer_Interest_Rate__c}" />
+                            </apex:outputText>    
+                            </td>
+                        </tr>
+                        <tr>    
+                            <td class="tableTd1" width="52%">
+                               Monthly Repayment:
+                            </td>
+                            <td class="tableTd2" width="10%">
+                            <apex:outputText value="${0, number, ###,###,###,###.00}">
+                                     <apex:param value="{!loanAccount.Current_Monthly_Loan_Repayment_c__c}" />
+                            </apex:outputText>   
+                                 
+                            </td>
+                           
+                            <td class="tableTd1" width="10%">
+                                Total Interest:
+                            </td>
+                            <td class="tableTd2" width="10%">
+                             <apex:outputText value="${0, number, ###,###,###,###.00}">
+                                    <apex:param value="{!loanAccount.Total_Interest__c}" />
+                            </apex:outputText>    
+                            </td>
+                        </tr>
+                        <tr>    
+                            <td class="tableTd1" width="15%">
+                                Total Loan Repayment:
+                            </td>
+                            <td class="tableTd2" width="10%">
+                            <apex:outputText value="${0, number, ###,###,###,###.00}">
+                                    <apex:param value="{!loanAccount.Current_Monthly_Loan_Repayment_c__c}" />
+                            </apex:outputText>
+                                 
+                            </td>
+                            <td class="tableTd1" width="10%">
+                                Contract:
+                            </td>
+                            <td class="tableTd2" width="10%">
+                                {!loanAccount.lms2__Contract__r.ContractNumber} 
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <hr/>
+                <div style="padding: 10px;">
+                    
+                </div>
+                <div style="{!IF(loanSummaryList.size > 0,'display:block;','display:none;')}">
+                    <div align="center">
+                        <h4>Pending Schedules</h4>
+                    </div>
+                    <table id="customers">
+                        <tr>
+                            <th>Serial No.</th>
+                            <th>Payment Date</th>
+                            <th>Opening Balance</th>
+                            <th>Payment</th>
+                            <th>Principal Amount</th>
+                            <th>Interest Amount</th>
+                            <th>Closing Balance</th>
+                        </tr>
+                        <apex:variable value="{!1}" var="index" />
+                        <apex:repeat value="{!loanSummaryList}" var="pendingSummary">
+                            <tr>
+                                <td>{!index}</td>
+                                
+                                <td><apex:outputText value="{0,date,MM'/'dd'/'yyyy}">
+                                    <apex:param value="{!pendingSummary.Repayment_Date}" /> 
+                                </apex:outputText></td>
+                                
+                                <td><apex:outputText value="${0, number, ###,###,###,###.00}">
+                                        <apex:param value="{!pendingSummary.Opening_Balance}" />
+                                </apex:outputText></td>
+                                
+                                <td><apex:outputText value="${0, number, ###,###,###,###.00}">
+                                        <apex:param value="{!pendingSummary.Payment}" />
+                                </apex:outputText></td>
+                                
+                                <td><apex:outputText value="${0, number, ###,###,###,###.00}">
+                                        <apex:param value="{!pendingSummary.Principal_Amount}" />
+                                </apex:outputText></td>
+                                
+                                <td><apex:outputText value="${0, number, ###,###,###,###.00}">
+                                        <apex:param value="{!pendingSummary.Interest}" />
+                                </apex:outputText></td>
+                                
+                                <td><apex:outputText value="${0, number, ###,###,###,###.00}">
+                                        <apex:param value="{!pendingSummary.Closing_Balance}" />
+                                </apex:outputText></td>
+                             </tr>
+                            <apex:variable var="index" value="{!index + 1}"/>
+                        </apex:repeat> 
+                    </table>
+                </div>
+                <div style="{!IF(summaryPaidList.size > 0,'display:block;','display:none;')}">
+                    
+                    <div align="center">
+                        <h4>Paid Schedules</h4>
+                    </div>   
+                    <table id="customers">
+                        <tr>
+                            <th>Serial No.</th>
+                            <th>Payment Date</th>
+                            <th>Opening Balance</th>
+                            <th>Payment</th>
+                            <th>Principal Amount</th>
+                            <th>Interest Amount</th>
+                            <th>Closing Balance</th> 
+                        </tr>
+                        <apex:variable value="{!1}" var="index" />
+                        <apex:repeat value="{!summaryPaidList}" var="paidSummary">
+                            <tr>
+                                <td>{!index}</td>   
+                                <td><apex:outputText value="{0,date,MM'/'dd'/'yyyy}">
+                                    <apex:param value="{!paidSummary.Repayment_Date}" /> 
+                                </apex:outputText></td>
+                                
+                                <td><apex:outputText value="${0, number, ###,###,###,###.00}">
+                                        <apex:param value="{!paidSummary.Opening_Balance}" />
+                                </apex:outputText></td>
+                                
+                                <td><apex:outputText value="${0, number, ###,###,###,###.00}">
+                                        <apex:param value="{!paidSummary.Payment}" />
+                                </apex:outputText></td>
+                                
+                                <td><apex:outputText value="${0, number, ###,###,###,###.00}">
+                                        <apex:param value="{!paidSummary.Principal_Amount}" />
+                                </apex:outputText></td>
+                                
+                                <td><apex:outputText value="${0, number, ###,###,###,###.00}">
+                                        <apex:param value="{!paidSummary.Interest}" />
+                                </apex:outputText></td>
+                                
+                                <td><apex:outputText value="${0, number, ###,###,###,###.00}">
+                                        <apex:param value="{!paidSummary.Closing_Balance}" />
+                                </apex:outputText></td>
+                            </tr>
+                        <apex:variable var="index" value="{!index + 1}"/>    
+                        </apex:repeat>
+                        
+                    </table>
+                </div>
+                
+            </apex:outputPanel>
+            
+        </div>   
+    </html>
+    
+    
+</apex:page>

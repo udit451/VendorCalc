@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Test 1 - Must Be Possitive 1 --></label>
+    <name>Test_1_Must_Be_Possitive_1__c</name>
+</CustomFieldTranslation>

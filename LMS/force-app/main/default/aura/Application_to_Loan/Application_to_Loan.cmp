@@ -1,0 +1,1334 @@
+<aura:component controller="LMS" implements="force:hasRecordId,flexipage:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" access="global">
+
+    <ltng:require scripts="{!join(',',
+                $Resource.LMS + '/js/jquery.min.js'
+                )}" />
+
+    <aura:attribute name="recordId" type="String" />
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
+    <aura:attribute name="LoansToConvert" type="sObject[]" />
+    <aura:attribute name="SelectedOpp" type="String" />
+    <aura:attribute name="SuccessMessage" type="String" default="Success!"/>
+    <aura:attribute name="ErrorMessage" type="String" default="Something mishappens!"/>
+    <aura:attribute name="LoanDetails" type="Object" />
+    <aura:attribute name="LRO" type="Object" />
+    <aura:attribute name="LRepaymentSchedule" type="Object[]" />
+    <aura:attribute name="ConvertedSuccessfuly" type="boolean" default="false"/>
+    <aura:attribute name="CannotConvertApp" type="boolean" default="false"/>
+    <aura:attribute name="CanConvertApp" type="boolean" default="false"/>
+    <aura:attribute name="isActive" type="String" default="1"/>
+    <aura:attribute name="MessagetoReturn" type="String" />
+    <aura:attribute name="ContractDetails" type="Object" />
+
+    <div aura:id="SuccessToast" class="slds-backdrop slds-backdrop&#45;&#45;open slds-hide" style="z-index: 10000;">
+        <div class="slds-p-top_small" style="height: 4rem;">
+            <div class="slds-notify_container slds-is-relative">
+                <div class="slds-notify slds-notify_toast slds-theme_success" role="alert">
+                    <span class="slds-assistive-text">success</span>
+                    <span class="slds-icon_container slds-icon-utility-success slds-m-right_small slds-no-flex slds-align-top" title="Success">
+                        <lightning:icon alternativeText="Success" iconName="utility:success" size="small" class="fillclr"/>
+                    </span>
+                    <div class="slds-notify__content">
+                        <h2 class="slds-text-heading_small ">{!v.SuccessMessage}</h2>
+                    </div>
+                    <button class="slds-button slds-button_icon slds-notify__close slds-button_icon-inverse" title="Close">
+                        <lightning:icon alternativeText="Close" iconName="utility:close" size="small" class="fillclr"/>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div aura:id="ErrorToast" class="slds-backdrop slds-backdrop&#45;&#45;open slds-hide" style="z-index: 10000;" >
+       <div class="demo-only" style="height: 4rem;">
+           <div class="slds-notify_container slds-is-relative">
+               <div class="slds-notify slds-notify_toast slds-theme_error" role="alert">
+                   <span class="slds-assistive-text">error</span>
+                   <span class="slds-icon_container slds-icon-utility-error slds-m-right_small slds-no-flex slds-align-top" title="Error">
+                       <lightning:icon alternativeText="Error" iconName="utility:error" size="small" class="fillclr"/>
+                   </span>
+                   <div class="slds-notify__content">
+                       <h2 class="slds-text-heading_small ">{!v.ErrorMessage}</h2>
+                   </div>
+                   <button class="slds-button slds-button_icon slds-notify__close slds-button_icon-inverse" title="Close">
+                       <lightning:icon alternativeText="Close" iconName="utility:close" size="small" class="fillclr"/>
+                       <span class="slds-assistive-text">Close</span>
+                   </button>
+               </div>
+           </div>
+       </div>
+    </div>
+
+    <aura:if isTrue="{!v.CannotConvertApp}" >
+        <div class="demo-only" style="height: 640px;">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <h3 style="font-family: 'Times New Roman';font-size: 30px;" align="center" >{!v.MessagetoReturn}</h3>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button name="Cancel" label="Cancel" variant="destructive" iconName="utility:close" disabled="false" onclick="{!c.returnDetailPage}"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </aura:if>
+
+    <aura:if isTrue="{!v.CanConvertApp}" >
+        <div class="demo-only" style="height: 640px;">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_medium">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Applications to Convert</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1" >
+                        <table class="slds-table slds-table_fixed-layout slds-table_bordered slds-border_right slds-border_left slds-no-row-hover slds-table_cell-buffer" role="grid">
+                            <thead>
+                                <tr class="slds-text-title&#45;&#45;caps">
+                                    <th>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="Name"><b>Name</b></div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="Date"><b>Created Date</b></div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="Amount"><b>Loan Amount</b></div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="Period"><b>Loan Period</b></div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="Interest"><b>Interest</b></div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <aura:iteration items="{!v.LoansToConvert}" var="LoanList" indexVar="index">
+                                    <tr>
+                                        <td>
+                                            <lightning:input type="radio" label="" name="ToConvertLoan" value="{!LoanList.Id}" onchange="{!c.handleSelectedOpp}" />
+                                        </td>
+                                        <td scope="row">
+                                            <div class="slds-truncate" title="">{!LoanList.Name}</div>
+                                        </td>
+                                        <td>
+                                            <ui:OutputDateTime format="dd/MM/yyyy" value="{!LoanList.CreatedDate}"></ui:OutputDateTime>
+                                        </td>
+                                        <td>
+                                            <div class="slds-truncate" title="">{!LoanList.LoanAmount}</div>
+                                        </td>
+                                        <td>
+                                            <div class="slds-truncate" title="">{!LoanList.LoanPeriod}</div>
+                                        </td>
+                                        <td>
+                                            <div class="slds-truncate" title="">{!LoanList.Interest}</div>
+                                        </td>
+                                    </tr>
+                                </aura:iteration>
+                            </tbody>
+                        </table><br/>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button name="Convert To Loan" label="Convert To Loan" variant="brand" iconName="utility:case" disabled="false" onclick="{!c.convertLoan}"/>
+                        <lightning:button name="Cancel" label="Cancel" variant="destructive" iconName="utility:close" disabled="false" onclick="{!c.returnDetailPage}"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </aura:if>
+
+    <aura:if isTrue="{!v.ConvertedSuccessfuly}" >
+        <div class="demo-only " style="height: 640px;">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_medium">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Loan Details</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium slds-border--left slds-border--right" id="modal-content-id-1" style="padding-left: 30px;padding-right: 30px;">
+                        <ul class="slds-accordion slds-border--right slds-border--left slds-hide" aura:id="MortLoanDetail">
+                            <li class="slds-accordion__list-item">
+                                <div class="{!v.isActive == '1' ? 'slds-accordion__summary AccActive':'slds-accordion__summary AccNonActive'}"  onclick="{!c.ToggleSectionOne}" aura:id="AccordDivM1" >
+                                    <h3 style="margin-left:10px;padding:6px;" class="slds-text-heading_small slds-accordion__summary-heading">
+                                        <lightning:icon class="{!v.isActive == '1' ? 'fillIcon':''}" aura:id="right_icon" iconName="{!v.isActive == '1' ? 'utility:down':'utility:right'}" size="x-small"/>
+                                        <span class="slds-truncate" style="margin: 0 0.3em;" title="Loan Repayment Schedule">Loan Detail</span>
+                                    </h3>
+                                </div>
+                                <section class="{!v.isActive == '1' ? 'slds-accordion__section slds-is-open':'slds-accordion__section slds-hide'}" aura:id="LoanSection"  >
+                                    <div aria-hidden="false" class="slds-accordion__content" id="accordion-details-01">
+                                        <table class="slds-table slds-table_fixed-layout slds-no-row-hover slds-table_cell-buffer" role="grid">
+                                            <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Loan"><B>Loan</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class=" slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Loan">{!v.LoanDetails.Name}</div>
+                                                </td>
+                                                <td>
+                                                    <div class=" slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Account Name"><B>Account Name</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Account Name">{!v.LoanDetails.AccountName}</div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Application Related To"><B>Application Related To</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Application Related To">{!v.LoanDetails.ApplicationRelatedTo}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Current Monthly Loan Repayment"><B>Monthly Loan Repayment</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Current Monthly Loan Repayment"><ui:outputCurrency value="{!v.LoanDetails.CurrentMonthlyLoanRepayment}" /></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Loan Account Number"><B>Loan Account Number</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Loan Account Number">{!v.LoanDetails.LoanAccountNo}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Financial Calculator Scenario"><B>Financial Calculator</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Financial Calculator Scenario">{!v.LoanDetails.FinancialCalculatorScenario}</div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </section>
+                            </li>
+                            <li class="slds-accordion__list-item">
+                                <div class="{!v.isActive == '2' ? 'slds-accordion__summary AccActive':'slds-accordion__summary AccNonActive'}"  onclick="{!c.ToggleSectionTwo}" aura:id="AccordDivM1" >
+                                    <h3 style="margin-left:10px;padding:6px;" class="slds-text-heading_small slds-accordion__summary-heading">
+                                        <lightning:icon class="{!v.isActive == '2' ? 'fillIcon':''}" aura:id="right_icon" iconName="{!v.isActive == '2' ? 'utility:down':'utility:right'}" size="x-small"/>
+                                        <span class="slds-truncate" style="margin: 0 0.3em;" title="Loan Repayment Schedule">Contract Detail</span>
+                                    </h3>
+                                </div>
+                                <section class="{!v.isActive == '2' ? 'slds-accordion__section slds-is-open':'slds-accordion__section slds-hide'}" aura:id="LoanSection"  >
+                                    <div aria-hidden="false" class="slds-accordion__content" id="accordion-details-01">
+                                        <table class="slds-table slds-table_fixed-layout slds-no-row-hover slds-table_cell-buffer" role="grid">
+                                            <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Contract Number"><B>Contract Number</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class=" slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Contract Number">{!v.ContractDetails.ContractNumber}</div>
+                                                </td>
+                                                <td>
+                                                    <div class=" slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Start Date"><B>Start Date</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Start Date">{!v.ContractDetails.StartDate}</div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="End Date"><B>End Date</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="End Date">{!v.ContractDetails.EndDate}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Contract Term"><B>Contract Term(months)</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Contract Term">{!v.ContractDetails.Term}</div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </section>
+                            </li>
+                            <li class="slds-accordion__list-item">
+                                <div class="{!v.isActive == '3' ? 'slds-accordion__summary AccActive':'slds-accordion__summary AccNonActive'}"  onclick="{!c.ToggleSectionThree}" aura:id="AccordDivM2" >
+                                    <h3 style="margin-left:10px;padding:6px;" class="slds-text-heading_small slds-accordion__summary-heading">
+                                        <lightning:icon class="{!v.isActive == '3' ? 'fillIcon':''}" aura:id="right_icon" iconName="{!v.isActive == '3' ? 'utility:down':'utility:right'}" size="x-small"/>
+                                        <span class="slds-truncate" style="margin: 0 0.3em;" title="Loan Repayment Schedule">Loan Repayment Option</span>
+                                    </h3>
+                                </div>
+                                <section class="{!v.isActive == '3' ? 'slds-accordion__section slds-is-open':'slds-accordion__section slds-hide'}" aura:id="LoanROSection"  >
+                                    <div aria-hidden="false" class="slds-accordion__content" id="accordion-details-02">
+                                        <table class="slds-table slds-table_fixed-layout slds-no-row-hover slds-table_cell-buffer" role="grid">
+                                            <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Loan Amount"><B>Loan Amount</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Loan Amount">{!v.LoanDetails.LoanAmount}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Loan Period"><B>Loan Period</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class=" slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Loan Period">{!v.LRO.New_Loan_Term_Years}</div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Annual Interest Rate"><B>Annual Interest Rate</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Annual Interest Rate">{!v.LRO.Intrest_Rate_on_new_Loan}</div>
+                                                </td>
+                                                <td>
+                                                    <div class=" slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Loan Type"><B>Loan Type</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Loan Type">{!v.LRO.Loan_Type}</div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Repayment Type"><B>Repayment Type</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Repayment Type">{!v.LRO.Repayment_Type}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Repayment Frequency"><B>Repayment Frequency</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class=" slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Repayment Frequency">{!v.LRO.Repayment_Frequency}</div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Additional Monthly Loan Repayment"><B>Additional Monthly Loan Repayment</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Additional Monthly Loan Repayment">{!v.LRO.AdditionalMonthlyLoanRepayment}</div>
+                                                </td>
+                                                <td>
+                                                    <div class=" slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Annual Interest Rate Sensitivity"><B>Annual Interest Rate Sensitivity</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Annual Interest Rate Sensitivity">{!v.LRO.Annual_Interest_Rate_Sensitivity}</div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Average Annual Inflation Rate"><B>Average Annual Inflation Rate</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Average Annual Inflation Rate">{!v.LRO.AverageAnnual_Inflation_Rate}</div>
+                                                </td>
+                                                <td>
+                                                    <div class=" slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Total Interest"><B>Total Interest</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Total Interest"><ui:outputCurrency value="{!v.LRO.Total_Interest_over_Loan_Period}" /></div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </section>
+                            </li>
+                            <li class="slds-accordion__list-item">
+                                <div class="{!v.isActive == '4' ? 'slds-accordion__summary AccActive':'slds-accordion__summary AccNonActive'}"  onclick="{!c.ToggleSectionFour}" aura:id="AccordDivM3" >
+                                    <h3 style="margin-left:10px;padding:6px;" class="slds-text-heading_small slds-accordion__summary-heading">
+                                        <lightning:icon class="{!v.isActive == '4' ? 'fillIcon':''}" aura:id="right_icon" iconName="{!v.isActive == '4' ? 'utility:down':'utility:right'}" size="x-small"/>
+                                        <!--<lightning:icon class="" aura:id="down_icon" iconName="utility:down" size="x-small" />&ndash;&gt;-->
+                                        <span class="slds-truncate" style="margin: 0 0.3em;" title="Loan Repayment Schedule">Loan Repayment Schedule</span>
+                                    </h3>
+                                </div>
+                                <section class="{!v.isActive == '4' ? 'slds-accordion__section slds-scrollable slds-is-open':'slds-accordion__section slds-hide'}" aura:id="LoanRSSection" style="height:400px;">
+                                    <div aria-hidden="false" class="slds-accordion__content" id="accordion-details-03">
+                                        <table class="slds-table slds-table_fixed-layout slds-table_bordered slds-border_right slds-border_left slds-no-row-hover slds-table_cell-buffer" role="grid">
+                                            <thead>
+                                            <tr class="slds-text-title&#45;&#45;caps">
+                                                <th>
+                                                    <div class="slds-truncate" title="Repayment Number"><b>Payment No.</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Payment Date"><b>Payment Date</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Opening Balance"><b>Opening Balance</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Payment"><b>Payment</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Payment"><b>Interest</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Closing Balance"><b>Closing Balance</b></div>
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <aura:iteration items="{!v.LRepaymentSchedule}" var="LRS" indexVar="index">
+                                                <tr>
+                                                    <td>
+                                                        <div class="slds-truncate" title="Repayment Number">{!LRS.RepaymentNumber}</div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="slds-truncate" title="Payment Date"><ui:OutputDateTime format="dd/MM/yyyy" value="{!LRS.EstimatedRepaymentDate}" /></div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="slds-truncate" title="Opening Balance"><ui:outputCurrency value="{!LRS.OpeningBalance}"/></div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="slds-truncate" title="Payment"><ui:outputCurrency value="{!LRS.Payment}"/></div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="slds-truncate" title="Payment"><ui:outputCurrency value="{!LRS.Interest}"/></div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="slds-truncate" title="Closing Balance"><ui:outputCurrency value="{!LRS.ClosingBalance}"/></div>
+                                                    </td>
+                                                </tr>
+                                            </aura:iteration>
+                                            </tbody>
+                                        </table></div>
+                                </section>
+                            </li>
+                        </ul>
+                        <ul class="slds-accordion slds-border&#45;&#45;right slds-border&#45;&#45;left slds-hide" aura:id="ServLoanDetail">
+                            <li class="slds-accordion__list-item">
+                                <div class="{!v.isActive == '1' ? 'slds-accordion__summary AccActive':'slds-accordion__summary AccNonActive'}"   onclick="{!c.ToggleSectionOne}" aura:id="AccordDivS1" >
+                                    <h3 style="margin-left:10px;padding:6px;" class="slds-text-heading_small slds-accordion__summary-heading">
+                                        <lightning:icon class="{!v.isActive == '1' ? 'fillIcon':''}" aura:id="right_icon" iconName="{!v.isActive == '1' ? 'utility:down':'utility:right'}" size="x-small"/>
+                                        <span class="slds-truncate" style="margin: 0 0.3em;" title="Loan Repayment Schedule">Loan Detail</span>
+                                    </h3>
+                                </div>
+                                <section class="{!v.isActive == '1' ? 'slds-accordion__section slds-is-open':'slds-accordion__section slds-hide'}" aura:id="LoanSection1"  >
+                                    <div aria-hidden="false" class="slds-accordion__content" id="accordion-details-01">
+                                        <table class="slds-table slds-table_fixed-layout slds-no-row-hover slds-table_cell-buffer" role="grid">
+                                            <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Loan"><B>Loan</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class=" slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Loan">{!v.LoanDetails.Name}</div>
+                                                </td>
+                                                <td>
+                                                    <div class=" slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Account Name"><B>Account Name</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Account Name">{!v.LoanDetails.AccountName}</div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Application Related To"><B>Application Related To</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Application Related To">{!v.LoanDetails.ApplicationRelatedTo}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Current Monthly Loan Repayment"><B>Monthly Loan Repayment</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Current Monthly Loan Repayment"><ui:outputCurrency value="{!v.LoanDetails.CurrentMonthlyLoanRepayment}" /></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Loan Account Number"><B>Loan Account Number</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Loan Account Number">{!v.LoanDetails.LoanAccountNo}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Serviceability Calculator Scenario"><B>Serviceability Calculator</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Serviceability Calculator Scenario">{!v.LoanDetails.ServiceabilityCalculatorScenario}</div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </section>
+                            </li>
+                            <li class="slds-accordion__list-item">
+                                <div class="{!v.isActive == '2' ? 'slds-accordion__summary AccActive':'slds-accordion__summary AccNonActive'}"   onclick="{!c.ToggleSectionTwo}" aura:id="AccordDivS1" >
+                                    <h3 style="margin-left:10px;padding:6px;" class="slds-text-heading_small slds-accordion__summary-heading">
+                                        <lightning:icon class="{!v.isActive == '2' ? 'fillIcon':''}" aura:id="right_icon" iconName="{!v.isActive == '2' ? 'utility:down':'utility:right'}" size="x-small"/>
+                                        <span class="slds-truncate" style="margin: 0 0.3em;" title="Loan Repayment Schedule">Contract Detail</span>
+                                    </h3>
+                                </div>
+                                <section class="{!v.isActive == '2' ? 'slds-accordion__section slds-is-open':'slds-accordion__section slds-hide'}" aura:id="LoanSection1"  >
+                                    <div aria-hidden="false" class="slds-accordion__content" id="accordion-details-01">
+                                        <table class="slds-table slds-table_fixed-layout slds-no-row-hover slds-table_cell-buffer" role="grid">
+                                            <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Contract Number"><B>Contract Number</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class=" slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Contract Number">{!v.ContractDetails.ContractNumber}</div>
+                                                </td>
+                                                <td>
+                                                    <div class=" slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Start Date"><B>Start Date</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Start Date"><ui:OutputDateTime format="dd/MM/yyyy" value="{!v.ContractDetails.StartDate}" /></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="End Date"><B>End Date</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="End Date"><ui:OutputDateTime format="dd/MM/yyyy" value="{!v.ContractDetails.EndDate}" /></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Contract Term"><B>Contract Term(months)</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Contract Term">{!v.ContractDetails.Term}</div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </section>
+                            </li>
+                            <li class="slds-accordion__list-item">
+                                <div class="{!v.isActive == '3' ? 'slds-accordion__summary AccActive':'slds-accordion__summary AccNonActive'}"  onclick="{!c.ToggleSectionThree}" aura:id="AccordDivS2" >
+                                    <h3 style="margin-left:10px;padding:6px;" class="slds-text-heading_small slds-accordion__summary-heading">
+                                        <lightning:icon class="{!v.isActive == '3' ? 'fillIcon':''}" aura:id="right_icon" iconName="{!v.isActive == '3' ? 'utility:down':'utility:right'}" size="x-small"/>
+                                        <span class="slds-truncate" style="margin: 0 0.3em;" title="Loan Repayment Schedule">Loan Repayment Option</span>
+                                    </h3>
+                                </div>
+                                <section class="{!v.isActive == '3' ? 'slds-accordion__section slds-scrollable slds-is-open':'slds-accordion__section slds-hide'}" aura:id="LoanROSection1" style="height: 427px;">
+                                    <div aria-hidden="false" class="slds-accordion__content" id="accordion-details-02">
+                                        <table class="slds-table slds-table_fixed-layout slds-no-row-hover slds-table_cell-buffer" role="grid">
+                                            <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Country of Residence"><B>Country of Residence</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Country of Residence">{!v.LRO.Country_of_Residence}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Foreign Currency"><B>Foreign Currency</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class=" slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Foreign Currency">{!v.LRO.Foreign_Currency}</div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Foreign Currency Exchange Rate"><B>Foreign Currency Exchange Rate</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Foreign Currency Exchange Rate">{!v.LRO.Foreign_Currency_Exchange_Rate}</div>
+                                                </td>
+                                                <td>
+                                                    <div class=" slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Single Adult"><B>Single Adult</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Single Adult">{!v.LRO.Single_Adult}</div>
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Couples"><B>Couples</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Couples">{!v.LRO.Couples}</div>
+                                                </td>
+                                                <td>
+                                                    <div class=" slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Children"><B>Children</B></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-col slds-size_1-of-3 slds-medium-size_4-of-12 slds-large-size_4-of-12" title="Children">{!v.LRO.Children}</div>
+
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <br/>
+                                        <table class="slds-table slds-table_fixed-layout slds-table_bordered slds-border_right slds-border_left slds-no-row-hover slds-table_cell-buffer" role="grid">
+                                            <thead>
+                                            <tr class="slds-text-title&#45;&#45;caps">
+                                                <th>
+                                                    <div class="slds-truncate" title="Income"><b>Income</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Gross Foreign Income"><b>G F I</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Net Foreign Income"><b>N F I</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Australian Gross Income"><b>A G I</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Total Net Monthly Income"><b>T N M I</b></div>
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Applicant 1 Income"><b>Applicant 1</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Applicant_1_Income_GFI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Applicant_1_Income_NFI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Applicant_1_Income_AGI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Applicant_1_Income_TNMI}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Applicant 2 Income"><b>Applicant 2</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Applicant_2_Income_GFI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title="e"><ui:outputCurrency value="{!v.LRO.Applicant_2_Income_NFI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Applicant_2_Income_AGI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Applicant_2_Income_TNMI}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Applicant 3 Income"><b>Applicant 3</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Applicant_3_Income_GFI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Applicant_3_Income_NFI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Applicant_3_Income_AGI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Applicant_3_Income_TNM}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Applicant 4 Income"><b>Applicant 4</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Applicant_4_Income_GFI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Applicant_4_Income_NFI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Applicant_4_Income_AGI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Applicant_4_Income_TNMI}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Company 1 Profit"><b>Company 1 Profit</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Company_1_Profit_c}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Company_1_Profit_NFI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Company_1_Profit_AGI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Company_1_Profit_TNMI}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Company 2 Profit"><b>Company 2 Profit</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Company_2_Profit}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Company_2_Profit_NFI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Company_2_Profit_AGI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Company_2_Profit_TNMI}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Annual Rental Income"><b>Annual Rental Income</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Anual_Rental_Income_s_GFI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Anual_Rental_Income_s_NFI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Anual_Rental_Income_s_AGI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Anual_Rental_Income_s_TNMI}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Total"><b>Total</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Total_AGI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Total_NFI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Total_AGI}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Total Gross Income"><b>Total Gross Income</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Total_Gross_Income}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Total Net Income"><b>Total Net Income</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Total_Net_Income}"/></div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <br/>
+                                        <table class="slds-table slds-table_fixed-layout slds-table_bordered slds-border_right slds-border_left slds-no-row-hover slds-table_cell-buffer" role="grid">
+                                            <thead>
+                                            <tr class="slds-text-title&#45;&#45;caps">
+                                                <th>
+                                                    <div class="slds-truncate" title="Less Living Allowance"><b>Less Living Allowance</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Monthly Living Expenses(Foreign Currency)"><b>Monthly Living Expenses(FC)</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Monthly Living Expenses(AUD)"><b>Monthly Living Expenses(AUD)</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Australian Gross Income"><b>Australian Gross Income</b></div>
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Monthly Living Expenses (Complete in AUD or O/S Currency)"><b>Monthly Living Expenses</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Monthly_Living_Expenses_FC}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Monthly_Living_Expenses_AUD}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Living Expenses Used(> of HPI or Actual)"><b>Living Expenses Used</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Living_Expenses_Used}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Total income available for debt and housing servicing"><b>Total income available for debt</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Total_income_available_for_debt}"/></div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <br/>
+                                        <table class="slds-table slds-table_fixed-layout slds-table_bordered slds-border_right slds-border_left slds-no-row-hover slds-table_cell-buffer" role="grid">
+                                            <thead>
+                                            <tr class="slds-text-title&#45;&#45;caps">
+                                                <th>
+                                                    <div class="slds-truncate" title="Less Existing Commitments"><b>Less Existing Comm</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Foreign Currency Debt/Limit"><b>Foreign C D/L</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Foreign Currency (Monthly)"><b>Foreign C (M)</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Australian Currency Debt/Limit"><b>Australian C D/L</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Australian Currency (Monthly)"><b>Australian C (M)</b></div>
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Credit Card(Limit not debt)"><b>Credit Card(Limit not debt)</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Credit_Card_Limit_not_debt_FCDL}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Credit_Card_Limit_not_debt_FCMP}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Credit_Card_Limit_not_debt_ADL}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Credit_Card_Limit_not_debt_AMP}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Personal loan(Variable)"><b>Personal loan(Variable)</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Personal_loan_Variable_FCDL}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Personal_loan_Variable_FCMP}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Personal_loan_Variable_ADL}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Personal_loan_Variable_AMP}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Personal loan(Fixed)"><b>Personal loan(Fixed)</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Personal_loan_Fixed_FCDL}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Personal_loan_Fixed_FCMP}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Personal_loan_Fixed_ADL}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Personal_loan_Fixed_AMP}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Overdraft"><b>Overdraft</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Overdraft_FCDL}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Overdraft_FCMP}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Overdraft_ADL}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Overdraft_AMP}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Housing loan Variable"><b>Housing loan Variable</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Housing_Loan_Variable_FCDL}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Housing_Loan_Variable_FCMP}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Housing_loan_Variable_ADL}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Housing_loan_Variable_AMP}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Lease / Hp"><b>Lease / Hp</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Lease_Hp_FCDL}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Lease_Hp_FCMP}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Lease_Hp_ADL}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Lease_Hp_AMP}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Other"><b>Other</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Other_FCDL}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Other_FCMP}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Other_ADL}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Other_AMP}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Child Support"><b>Child Support</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Child_Support_FCMP}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Child_Support_AMP}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Rent/Board"><b>Rent/Board</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Rent_Board_FCMP}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Rent_Board_AMP}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Total"><b>Total</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Total_FCMP}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Total_AMP}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Total Commitments-AUD"><b>Total Commitments-AUD</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Total_Commitments_AUD}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Total Commitments-Foreign Currency"><b>Total Commitments-FC</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Total_Commitments_Foreign_Currency}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Total Net Commitments"><b>Total Net Commitments</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Total_Net_Commitments}"/></div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <br/>
+                                        <table class="slds-table slds-table_fixed-layout slds-table_bordered slds-border_right slds-border_left slds-no-row-hover slds-table_cell-buffer" role="grid">
+                                            <thead>
+                                            <tr class="slds-text-title&#45;&#45;caps">
+                                                <th>
+                                                    <div class="slds-truncate" title="New Loan Commitments"><b>New Loan Commitments</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title=""></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title=""></div>
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Repayment Type"><b>Repayment Type</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title="">{!v.LRO.Repayment_Type}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="New Loan Term (Years"><b>New Loan Term</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title="">{!v.LRO.New_Loan_Term_Years}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Interest Only Term (Years"><b>Interest Only Term</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title="">{!v.LRO.Interest_Only_Term_Years}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Loan Amount"><b>Loan Amount</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Loan_Amount}"/></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Interest Rate on new Loan"><b>Interest Rate</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title="e">{!v.LRO.Intrest_Rate_on_new_Loan}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="New Monthly Loan Repayments"><b>Monthly Loan Repayments</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.New_Monthly_Loan_Repayment_s}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Net Disposable Income"><b>Net Disposable Income</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Net_Disposable_Income}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Loan Assesment Rate (minimum 7%)"><b>Loan Assesment Rate</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title="">{!v.LRO.Loan_Assesment_Rate_minimum_7}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <br/>
+                                        <table class="slds-table slds-table_fixed-layout slds-table_bordered slds-border_right slds-border_left slds-no-row-hover slds-table_cell-buffer" role="grid">
+                                            <thead>
+                                            <tr class="slds-text-title&#45;&#45;caps">
+                                                <th>
+                                                    <div class="slds-truncate" title="Serviceability Stress Test"><b>Serviceability Stress Test</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Gross Foreign Income"></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Net Foreign Income"></div>
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="(minus)Existing Commitment Sensitivity of 2%"><b>Existing Commitment Sensitivity</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.minus_Existing_Commitment_Sensitivity_2}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="(minus)New loan Commitment Sensitivity of 2%" ><b>New loan Commitment Sensitivity</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.minus_New_loan_Commitment_Sensitivity_2}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Total Expenses"><b>Total Expenses</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Total_Expenses}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Interest Coverage Ratio (ICR)"><b>Interest Coverage Ratio</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title="">{!v.LRO.Interest_Coverage_Ratio_ICR_t}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><lightning:formattedNumber value="{!v.LRO.Interest_Coverage_Ratio_ICR}" maximumSignificantDigits="2"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Test 1 - Must Be Positive"><b>Test 1-Must Be Positive</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title="">{!v.LRO.Test_1_Must_Be_Possitive_1}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><ui:outputCurrency value="{!v.LRO.Test_1_Must_Be_Possitive_2}"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Test 2 - Must NOT exceed 35%"><b>Test 2-Must NOT exceed 35%</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title="">{!v.LRO.Test_2_Must_NOT_exceed_35_1}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title=""><lightning:formattedNumber value="{!v.LRO.Test_2_Must_NOT_exceed_35_2}" style="percent" maximumFractionDigits="1"/></div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="slds-truncate" title="Overall Result"><b>Overall Result</b></div>
+                                                </td>
+                                                <td scope="row">
+                                                    <div class="slds-truncate" title=""></div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title="">{!v.LRO.Overall_Result}</div>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </section>
+                            </li>
+                            <li class="slds-accordion__list-item">
+                                <div class="{!v.isActive == '4' ? 'slds-accordion__summary AccActive':'slds-accordion__summary AccNonActive'}"  onclick="{!c.ToggleSectionFour}" aura:id="AccordDivS3" >
+                                    <h3 style="margin-left:10px;padding:6px;" class="slds-text-heading_small slds-accordion__summary-heading">
+                                        <lightning:icon class="{!v.isActive == '4' ? 'fillIcon':''}" aura:id="right_icon" iconName="{!v.isActive == '4' ? 'utility:down':'utility:right'}" size="x-small"/>
+                                        <span class="slds-truncate" style="margin: 0 0.3em;" title="Loan Repayment Schedule">Loan Repayment Schedule</span>
+                                    </h3>
+                                </div>
+                                <section class="{!v.isActive == '4' ? 'slds-accordion__section slds-scrollable slds-is-open':'slds-accordion__section slds-hide'}" aura:id="LoanRSSection1" style="height:400px;">
+                                    <div aria-hidden="false" class="slds-accordion__content" id="accordion-details-03">
+                                        <table class="slds-table slds-table_fixed-layout slds-table_bordered slds-border_right slds-border_left slds-no-row-hover slds-table_cell-buffer" role="grid">
+                                            <thead>
+                                            <tr class="slds-text-title&#45;&#45;caps">
+                                                <th>
+                                                    <div class="slds-truncate" title="Repayment Number"><b>Payment No.</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Payment Date"><b>Payment Date</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Opening Balance"><b>Opening Balance</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Payment"><b>Payment</b></div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Closing Balance"><b>Closing Balance</b></div>
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <aura:iteration items="{!v.LRepaymentSchedule}" var="LRS" indexVar="index">
+                                                <tr>
+                                                    <td>
+                                                        <div class="slds-truncate" title="Repayment Number">{!LRS.RepaymentNumber}</div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="slds-truncate" title="Payment Date"><ui:OutputDateTime format="dd/MM/yyyy" value="{!LRS.EstimatedRepaymentDate}" /></div>
+                                                    </td>
+
+                                                    <td>
+                                                        <div class="slds-truncate" title="Opening Balance"><ui:outputCurrency value="{!LRS.OpeningBalance}"/></div>
+                                                    </td>
+                                                    <td>
+
+                                                        <div class="slds-truncate" title="Payment"><ui:outputCurrency value="{!LRS.Payment}"/></div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="slds-truncate" title="Closing Balance"><ui:outputCurrency value="{!LRS.ClosingBalance}"/></div>
+                                                    </td>
+                                                </tr>
+                                            </aura:iteration>
+                                            </tbody>
+                                        </table></div>
+                                </section>
+                            </li>
+                        </ul>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button name="OK" label="OK" variant="brand" iconName="utility:like" disabled="false" onclick="{!c.returnDetailPage}"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </aura:if>
+</aura:component>

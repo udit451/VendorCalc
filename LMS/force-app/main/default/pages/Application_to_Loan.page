@@ -1,0 +1,19 @@
+<apex:page standardController="Opportunity" id="Application_to_Loan" sideBar="false" showHeader="false">
+    <apex:includeLightning />
+    <apex:slds />
+    <div id="LMSDiv"></div>
+
+    <script>
+        $Lightning.use("lms2:LMSApp", function () {
+            $Lightning.createComponent(
+                "lms2:Application_to_Loan",
+                {recordId  : "{!$CurrentPage.parameters.id}"
+                },
+                "LMSDiv",
+                function (cmp) {
+                }
+            );
+        });
+    </script>
+
+</apex:page>

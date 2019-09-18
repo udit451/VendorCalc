@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <defaultLandingTab>standard-home</defaultLandingTab>
+    <description>This app contains all LMS tabs</description>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
+    <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
+    <label>LMS</label>
+    <tabs>standard-Account</tabs>
+    <tabs>standard-Opportunity</tabs>
+    <tabs>Loan__c</tabs>
+    <tabs>Loan_Repayment_Option__c</tabs>
+    <tabs>Loan_Repayent_Schedule__c</tabs>
+    <tabs>Payment_Transaction__c</tabs>
+    <tabs>servicecal__Non_Resident__c</tabs>
+    <tabs>MortgageCalc__Financial_Calculator__c</tabs>
+    <tabs>quoteCal__Quote_Calculator__c</tabs>
+    <tabs>Loan_Repayment__c</tabs>
+    <tabs>quoteCal__Amortization_Schedule__c</tabs>
+    <tabs>Fee_Expense__c</tabs>
+</CustomApplication>

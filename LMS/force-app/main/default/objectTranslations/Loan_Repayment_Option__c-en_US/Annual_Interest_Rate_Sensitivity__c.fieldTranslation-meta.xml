@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Annual Interest Rate Sensitivity --></label>
+    <name>Annual_Interest_Rate_Sensitivity__c</name>
+</CustomFieldTranslation>

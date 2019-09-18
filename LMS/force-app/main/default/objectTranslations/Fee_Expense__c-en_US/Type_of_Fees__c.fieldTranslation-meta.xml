@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Type --></label>
+    <name>Type_of_Fees__c</name>
+    <picklistValues>
+        <masterLabel>Aggregator Fee</masterLabel>
+        <translation><!-- Aggregator Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Application Fee</masterLabel>
+        <translation><!-- Application Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Borrower Expense</masterLabel>
+        <translation><!-- Borrower Expense --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Broker Expense - Accommodation</masterLabel>
+        <translation><!-- Broker Expense - Accommodation --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Broker Expense - Event</masterLabel>
+        <translation><!-- Broker Expense - Event --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Broker Expense - Lunch</masterLabel>
+        <translation><!-- Broker Expense - Lunch --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Broker Expense - Transpo Airfare</masterLabel>
+        <translation><!-- Broker Expense - Transpo Airfare --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Broker Expense - Transpo Gas</masterLabel>
+        <translation><!-- Broker Expense - Transpo Gas --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Brokerage - Trailing</masterLabel>
+        <translation><!-- Brokerage - Trailing --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Brokerage - Upfront</masterLabel>
+        <translation><!-- Brokerage - Upfront --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Builder Expense</masterLabel>
+        <translation><!-- Builder Expense --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Commission Fee</masterLabel>
+        <translation><!-- Commission Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Commitment Fee</masterLabel>
+        <translation><!-- Commitment Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Credit Assessment Fee</masterLabel>
+        <translation><!-- Credit Assessment Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Discharge Fee</masterLabel>
+        <translation><!-- Discharge Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Document Fee</masterLabel>
+        <translation><!-- Document Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Engagement Fee</masterLabel>
+        <translation><!-- Engagement Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Establishment Fee</masterLabel>
+        <translation><!-- Establishment Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Exit/Break Fee</masterLabel>
+        <translation><!-- Exit/Break Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Indicative Offer Fee</masterLabel>
+        <translation><!-- Indicative Offer Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Inspection Fee</masterLabel>
+        <translation><!-- Inspection Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Introducer/Vendor Fee</masterLabel>
+        <translation><!-- Introducer/Vendor Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Land Tax</masterLabel>
+        <translation><!-- Land Tax --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Legal Fee</masterLabel>
+        <translation><!-- Legal Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Line Fee</masterLabel>
+        <translation><!-- Line Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Loan Facilitation Fee</masterLabel>
+        <translation><!-- Loan Facilitation Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Monthly Package Fee</masterLabel>
+        <translation><!-- Monthly Package Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Other</masterLabel>
+        <translation><!-- Other --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Primary Lender&#39;s Establishment Fee</masterLabel>
+        <translation><!-- Primary Lender&apos;s Establishment Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Project Management Fee</masterLabel>
+        <translation><!-- Project Management Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Reassessment Fee</masterLabel>
+        <translation><!-- Reassessment Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Referrer Expense</masterLabel>
+        <translation><!-- Referrer Expense --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Referrer Expense - Clawback</masterLabel>
+        <translation><!-- Referrer Expense - Clawback --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Referrer Expense - Trail</masterLabel>
+        <translation><!-- Referrer Expense - Trail --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Referrer Expense - Upfront</masterLabel>
+        <translation><!-- Referrer Expense - Upfront --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Registration Fee</masterLabel>
+        <translation><!-- Registration Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Risk Fee</masterLabel>
+        <translation><!-- Risk Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Service Fee</masterLabel>
+        <translation><!-- Service Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Stamp Fee</masterLabel>
+        <translation><!-- Stamp Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Subscription Fee</masterLabel>
+        <translation><!-- Subscription Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Success Fee</masterLabel>
+        <translation><!-- Success Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>VBI Fee</masterLabel>
+        <translation><!-- VBI Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Valuation Fee</masterLabel>
+        <translation><!-- Valuation Fee --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Work Fee</masterLabel>
+        <translation><!-- Work Fee --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Annual Rental Income(s) - NMI --></label>
+    <name>Annual_Rental_Income_s_NMI__c</name>
+</CustomFieldTranslation>

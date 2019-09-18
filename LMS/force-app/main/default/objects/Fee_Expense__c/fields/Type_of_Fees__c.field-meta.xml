@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Type_of_Fees__c</fullName>
+    <externalId>false</externalId>
+    <label>Type</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <controllingField>Fee_or_Expense__c</controllingField>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Broker Expense - Accommodation</fullName>
+                <default>false</default>
+                <label>Broker Expense - Accommodation</label>
+            </value>
+            <value>
+                <fullName>Broker Expense - Event</fullName>
+                <default>false</default>
+                <label>Broker Expense - Event</label>
+            </value>
+            <value>
+                <fullName>Broker Expense - Lunch</fullName>
+                <default>false</default>
+                <label>Broker Expense - Lunch</label>
+            </value>
+            <value>
+                <fullName>Broker Expense - Transpo Airfare</fullName>
+                <default>false</default>
+                <label>Broker Expense - Transpo Airfare</label>
+            </value>
+            <value>
+                <fullName>Broker Expense - Transpo Gas</fullName>
+                <default>false</default>
+                <label>Broker Expense - Transpo Gas</label>
+            </value>
+            <value>
+                <fullName>Referrer Expense</fullName>
+                <default>false</default>
+                <label>Referrer Expense</label>
+            </value>
+            <value>
+                <fullName>Referrer Expense - Clawback</fullName>
+                <default>false</default>
+                <label>Referrer Expense - Clawback</label>
+            </value>
+            <value>
+                <fullName>Referrer Expense - Trail</fullName>
+                <default>false</default>
+                <label>Referrer Expense - Trail</label>
+            </value>
+            <value>
+                <fullName>Referrer Expense - Upfront</fullName>
+                <default>false</default>
+                <label>Referrer Expense - Upfront</label>
+            </value>
+            <value>
+                <fullName>Aggregator Fee</fullName>
+                <default>false</default>
+                <label>Aggregator Fee</label>
+            </value>
+            <value>
+                <fullName>Application Fee</fullName>
+                <default>false</default>
+                <label>Application Fee</label>
+            </value>
+            <value>
+                <fullName>Borrower Expense</fullName>
+                <default>false</default>
+                <label>Borrower Expense</label>
+            </value>
+            <value>
+                <fullName>Brokerage - Trailing</fullName>
+                <default>false</default>
+                <label>Brokerage - Trailing</label>
+            </value>
+            <value>
+                <fullName>Brokerage - Upfront</fullName>
+                <default>false</default>
+                <label>Brokerage - Upfront</label>
+            </value>
+            <value>
+                <fullName>Builder Expense</fullName>
+                <default>false</default>
+                <label>Builder Expense</label>
+            </value>
+            <value>
+                <fullName>Commission Fee</fullName>
+                <default>false</default>
+                <label>Commission Fee</label>
+            </value>
+            <value>
+                <fullName>Commitment Fee</fullName>
+                <default>false</default>
+                <label>Commitment Fee</label>
+            </value>
+            <value>
+                <fullName>Credit Assessment Fee</fullName>
+                <default>false</default>
+                <label>Credit Assessment Fee</label>
+            </value>
+            <value>
+                <fullName>Discharge Fee</fullName>
+                <default>false</default>
+                <label>Discharge Fee</label>
+            </value>
+            <value>
+                <fullName>Document Fee</fullName>
+                <default>false</default>
+                <label>Document Fee</label>
+            </value>
+            <value>
+                <fullName>Engagement Fee</fullName>
+                <default>false</default>
+                <label>Engagement Fee</label>
+            </value>
+            <value>
+                <fullName>Establishment Fee</fullName>
+                <default>false</default>
+                <label>Establishment Fee</label>
+            </value>
+            <value>
+                <fullName>Exit/Break Fee</fullName>
+                <default>false</default>
+                <label>Exit/Break Fee</label>
+            </value>
+            <value>
+                <fullName>Indicative Offer Fee</fullName>
+                <default>false</default>
+                <label>Indicative Offer Fee</label>
+            </value>
+            <value>
+                <fullName>Inspection Fee</fullName>
+                <default>false</default>
+                <label>Inspection Fee</label>
+            </value>
+            <value>
+                <fullName>Introducer/Vendor Fee</fullName>
+                <default>false</default>
+                <label>Introducer/Vendor Fee</label>
+            </value>
+            <value>
+                <fullName>Land Tax</fullName>
+                <default>false</default>
+                <label>Land Tax</label>
+            </value>
+            <value>
+                <fullName>Legal Fee</fullName>
+                <default>false</default>
+                <label>Legal Fee</label>
+            </value>
+            <value>
+                <fullName>Line Fee</fullName>
+                <default>false</default>
+                <label>Line Fee</label>
+            </value>
+            <value>
+                <fullName>Loan Facilitation Fee</fullName>
+                <default>false</default>
+                <label>Loan Facilitation Fee</label>
+            </value>
+            <value>
+                <fullName>Monthly Package Fee</fullName>
+                <default>false</default>
+                <label>Monthly Package Fee</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>false</default>
+                <label>Other</label>
+            </value>
+            <value>
+                <fullName>Primary Lender&#39;s Establishment Fee</fullName>
+                <default>false</default>
+                <label>Primary Lender&#39;s Establishment Fee</label>
+            </value>
+            <value>
+                <fullName>Project Management Fee</fullName>
+                <default>false</default>
+                <label>Project Management Fee</label>
+            </value>
+            <value>
+                <fullName>Reassessment Fee</fullName>
+                <default>false</default>
+                <label>Reassessment Fee</label>
+            </value>
+            <value>
+                <fullName>Registration Fee</fullName>
+                <default>false</default>
+                <label>Registration Fee</label>
+            </value>
+            <value>
+                <fullName>Risk Fee</fullName>
+                <default>false</default>
+                <label>Risk Fee</label>
+            </value>
+            <value>
+                <fullName>Service Fee</fullName>
+                <default>false</default>
+                <label>Service Fee</label>
+            </value>
+            <value>
+                <fullName>Stamp Fee</fullName>
+                <default>false</default>
+                <label>Stamp Fee</label>
+            </value>
+            <value>
+                <fullName>Subscription Fee</fullName>
+                <default>false</default>
+                <label>Subscription Fee</label>
+            </value>
+            <value>
+                <fullName>Success Fee</fullName>
+                <default>false</default>
+                <label>Success Fee</label>
+            </value>
+            <value>
+                <fullName>Valuation Fee</fullName>
+                <default>false</default>
+                <label>Valuation Fee</label>
+            </value>
+            <value>
+                <fullName>VBI Fee</fullName>
+                <default>false</default>
+                <label>VBI Fee</label>
+            </value>
+            <value>
+                <fullName>Work Fee</fullName>
+                <default>false</default>
+                <label>Work Fee</label>
+            </value>
+        </valueSetDefinition>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Aggregator Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Application Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Borrower Expense</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Brokerage - Trailing</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Brokerage - Upfront</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Builder Expense</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Commission Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Commitment Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Credit Assessment Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Discharge Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Document Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Engagement Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Establishment Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Exit/Break Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Indicative Offer Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Inspection Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Introducer/Vendor Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Land Tax</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Legal Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Line Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Loan Facilitation Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Monthly Package Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <controllingFieldValue>Expense</controllingFieldValue>
+            <valueName>Other</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Primary Lender&#39;s Establishment Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Project Management Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Reassessment Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Registration Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Risk Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Service Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Stamp Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Subscription Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Success Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Valuation Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>VBI Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Fee</controllingFieldValue>
+            <valueName>Work Fee</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Expense</controllingFieldValue>
+            <valueName>Broker Expense - Accommodation</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Expense</controllingFieldValue>
+            <valueName>Broker Expense - Event</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Expense</controllingFieldValue>
+            <valueName>Broker Expense - Lunch</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Expense</controllingFieldValue>
+            <valueName>Broker Expense - Transpo Airfare</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Expense</controllingFieldValue>
+            <valueName>Broker Expense - Transpo Gas</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Expense</controllingFieldValue>
+            <valueName>Referrer Expense</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Expense</controllingFieldValue>
+            <valueName>Referrer Expense - Clawback</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Expense</controllingFieldValue>
+            <valueName>Referrer Expense - Trail</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Expense</controllingFieldValue>
+            <valueName>Referrer Expense - Upfront</valueName>
+        </valueSettings>
+    </valueSet>
+</CustomField>
